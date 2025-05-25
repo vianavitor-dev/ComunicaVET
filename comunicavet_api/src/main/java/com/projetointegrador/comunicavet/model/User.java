@@ -11,10 +11,14 @@ import java.util.regex.Pattern;
 
 @Entity
 @Table(name = "user")
-public abstract class User {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private PetOwner petOwner;
 
     @Column(name= "type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -34,9 +38,6 @@ public abstract class User {
 
     @Column(name = "create_at", nullable = false)
     private LocalDate createAt;
-
-    @Column(name = "update_at", nullable = false)
-    private LocalDate updateAt;
 
     @Column(name = "is_active", nullable = false)
     private boolean active;
@@ -133,17 +134,6 @@ public abstract class User {
         this.createAt = zonedDateTime.toLocalDate();
     }
 
-    public LocalDate getUpdateAt() {
-        return updateAt;
-    }
-
-    public void setUpdateAt(String zoneId) {
-        Instant now = Instant.now();
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(now, ZoneId.of(zoneId));
-
-        this.createAt = zonedDateTime.toLocalDate();
-    }
-
     public boolean isActive() {
         return active;
     }
@@ -166,7 +156,6 @@ public abstract class User {
                 \tpassword: %s
                 \tprofileImage: %s\s
                 \tcreateAt: %s\s
-                \tupdateAt: %s\s
                 \tactive: %b
         """;
 
@@ -175,7 +164,7 @@ public abstract class User {
         return String.format(format,
                 this.name, this.type, this.email,
                 this.password, this.profileImage,
-                this.createAt.format(formatter), this.updateAt.format(formatter),
+                this.createAt.format(formatter),
                 this.active
         );
     }
