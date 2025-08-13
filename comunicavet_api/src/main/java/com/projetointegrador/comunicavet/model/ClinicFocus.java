@@ -9,11 +9,11 @@ public class ClinicFocus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "clinic_id")
     private Clinic clinic;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "focus_id")
     private Focus focus;
 

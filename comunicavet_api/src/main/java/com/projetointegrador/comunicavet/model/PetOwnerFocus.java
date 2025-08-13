@@ -9,11 +9,11 @@ public class PetOwnerFocus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "focus_id")
     private Focus focus;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "pet_owner_id")
     private PetOwner petOwner;
 

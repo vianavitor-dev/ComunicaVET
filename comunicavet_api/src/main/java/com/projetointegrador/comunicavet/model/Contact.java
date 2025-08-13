@@ -9,7 +9,7 @@ public class Contact {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "type_id", nullable = false)
     private ContactType type;
 

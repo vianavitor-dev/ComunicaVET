@@ -9,11 +9,11 @@ public class FavoriteClinic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "clinic_id")
     private Clinic clinic;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "pet_owner_id")
     private PetOwner petOwner;
 

@@ -17,7 +17,7 @@ public class Comment {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String text;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
