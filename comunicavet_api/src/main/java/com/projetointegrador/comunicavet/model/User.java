@@ -42,7 +42,9 @@ public class User {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
-    // private Address address;
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
 
     public User() {}
 
