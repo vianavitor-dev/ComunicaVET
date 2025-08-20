@@ -31,7 +31,7 @@ public class Address {
     private Country country;
 
     @OneToOne
-    @JoinColumn( name = "location_id")
+    @JoinColumn( name = "location_id", unique = true)
     private Location location;
 
     @Column(columnDefinition = "TEXT")
