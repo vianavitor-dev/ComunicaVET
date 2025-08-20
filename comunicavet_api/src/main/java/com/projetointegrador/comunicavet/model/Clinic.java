@@ -20,7 +20,9 @@ public class Clinic {
     @Column(nullable = false)
     private int stars;
 
-//    private Contact contactId;
+    @ManyToOne
+    @JoinColumn(name = "contact_id", nullable = false)
+    private Contact contact;
 
     @Column(name = "background_image")
     private String backgroundImage;
