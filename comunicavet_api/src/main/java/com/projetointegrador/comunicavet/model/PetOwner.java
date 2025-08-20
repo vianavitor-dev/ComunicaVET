@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 @Table(name = "pet_owner")
 public class PetOwner {
     @Id
-    private long id;
+    private Long id;
 
     @OneToOne
     @MapsId

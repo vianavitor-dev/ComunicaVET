@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "type_id", nullable = false)
@@ -16,11 +16,11 @@ public class Contact {
     @Column(nullable = false)
     private String value;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

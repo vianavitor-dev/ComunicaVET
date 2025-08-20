@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String text;
@@ -33,11 +33,11 @@ public class Comment {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

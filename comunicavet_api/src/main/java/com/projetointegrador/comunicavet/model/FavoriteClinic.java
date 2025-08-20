@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 public class FavoriteClinic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "clinic_id")
@@ -17,11 +17,11 @@ public class FavoriteClinic {
     @JoinColumn(name = "pet_owner_id")
     private PetOwner petOwner;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

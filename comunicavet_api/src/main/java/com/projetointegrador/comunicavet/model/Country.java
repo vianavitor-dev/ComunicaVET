@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 public class Country {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Short id;
 
     @Column(nullable = false)
     private String name;
@@ -15,11 +15,11 @@ public class Country {
     @Column(name = "country_abbreviation")
     private String abbreviation;
 
-    public long getId() {
+    public Short getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Short id) {
         this.id = id;
     }
 

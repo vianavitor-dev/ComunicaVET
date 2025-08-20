@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 public class Focus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Byte id;
 
     @Column(nullable = false)
     private String name;
@@ -15,11 +15,11 @@ public class Focus {
     @Column(name = "short_description")
     private String description;
 
-    public Long getId() {
+    public Byte getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Byte id) {
         this.id = id;
     }
 

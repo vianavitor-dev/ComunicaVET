@@ -10,7 +10,7 @@ import javax.naming.LimitExceededException;
 public class Clinic {
     @Id
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @OneToOne
     @MapsId
@@ -32,11 +32,11 @@ public class Clinic {
         this.stars = 0;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

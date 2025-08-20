@@ -8,16 +8,16 @@ public class ContactType {
     @Id
     @Column(columnDefinition = "TINYINT(4)")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private byte id;
+    private Byte id;
 
     @Column(nullable = false, unique = true)
     private String name;
 
-    public byte getId() {
+    public Byte getId() {
         return id;
     }
 
-    public void setId(byte id) {
+    public void setId(Byte id) {
         this.id = id;
     }
 
