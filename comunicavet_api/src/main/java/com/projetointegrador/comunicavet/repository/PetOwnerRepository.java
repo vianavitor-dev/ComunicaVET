@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface PetOwnerRepository extends CrudRepository<PetOwner, Long> {
-    Optional<PetOwner> findByUser(User user);
+
 }
 
