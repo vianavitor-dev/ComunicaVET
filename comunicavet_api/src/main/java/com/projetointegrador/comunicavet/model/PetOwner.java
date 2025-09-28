@@ -8,35 +8,17 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "pet_owner")
-public class PetOwner {
-    @Id
-    private Long id;
-
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "id")
-    private User user;
+@DiscriminatorValue("pet_owner")
+public class PetOwner extends User {
 
     @Column(name = "update_at", nullable = false)
     private LocalDate updateAt;
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public LocalDate getUpdateAt() {
         return updateAt;
     }
 
-    public void setUpdateAt(String zoneId) {
-        Instant now = Instant.now();
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(now, ZoneId.of(zoneId));
-
-        this.updateAt = zonedDateTime.toLocalDate();
+    public void setUpdateAt(LocalDate updateAt) {
+        this.updateAt = updateAt;
     }
 }

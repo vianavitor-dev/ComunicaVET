@@ -1,6 +1,8 @@
 package com.projetointegrador.comunicavet.model;
 
 import jakarta.persistence.*;
+import org.springframework.cglib.core.Local;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -11,26 +13,20 @@ import java.util.regex.Pattern;
 
 @Entity
 @Table(name = "user")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
-    private PetOwner petOwner;
-
-    @Column(name= "type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private UserType type;
-
-    @Column(nullable = false)
+    @Column(nullable = false, length = 120)
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
 
     @Column(name= "profile_image")
@@ -48,32 +44,20 @@ public class User {
 
     public User() {}
 
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public UserType getType() {
-        return type;
-    }
-
-    public void setPetOwner() {
-        this.type = UserType.PET_OWNER;
-    }
-
-    public void setClinic() {
-        this.type = UserType.CLINIC;
-    }
-
-    public boolean isPetOwner() {
-        return this.type.compare("pet_owner");
-    }
-
-    public boolean isClinic() {
-        return this.type.compare("clinic");
     }
 
     public String getName() {
@@ -88,24 +72,7 @@ public class User {
         return email;
     }
 
-    /**
-     * Atribui um valor email para o email do usuário
-     * @param email email do usuário a ser atrelado a classe User
-     * @throws NullPointerException email não pode ser nulo
-     * @throws RuntimeException email inválido
-     * */
     public void setEmail(String email) {
-        if (email == null) {
-            throw new NullPointerException("email cannot be null");
-        }
-
-        Pattern pattern = Pattern.compile("^[^\\s{|}=,]+@(.+)$"); // Validação super simples
-        boolean isEmailValid = pattern.matcher(email).matches();
-
-        if (!isEmailValid) {
-            throw new RuntimeException("invalid email");
-        }
-
         this.email = email;
     }
 
@@ -129,11 +96,8 @@ public class User {
         return createAt;
     }
 
-    public void setCreateAt(String zoneId) {
-        Instant now = Instant.now();
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(now, ZoneId.of(zoneId));
-
-        this.createAt = zonedDateTime.toLocalDate();
+    public void setCreateAt(LocalDate createAt) {
+        this.createAt = createAt;
     }
 
     public boolean isActive() {
@@ -146,28 +110,5 @@ public class User {
 
     public void activate() {
         this.active = true;
-    }
-
-    @Override
-    public String toString() {
-        String format = """
-                User:
-                \tname: %s\s
-                \ttype: %s\s
-                \temail: %s\s
-                \tpassword: %s
-                \tprofileImage: %s\s
-                \tcreateAt: %s\s
-                \tactive: %b
-        """;
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        return String.format(format,
-                this.name, this.type, this.email,
-                this.password, this.profileImage,
-                this.createAt.format(formatter),
-                this.active
-        );
     }
 }
