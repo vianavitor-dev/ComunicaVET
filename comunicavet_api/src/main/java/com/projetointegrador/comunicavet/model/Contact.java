@@ -16,8 +16,20 @@ public class Contact {
     @Column(nullable = false)
     private String value;
 
+    @ManyToOne
+    @JoinColumn(name = "clinic_id")
+    private Clinic clinic;
+
     public Long getId() {
         return id;
+    }
+
+    public Clinic getClinic() {
+        return clinic;
+    }
+
+    public void setClinic(Clinic clinic) {
+        this.clinic = clinic;
     }
 
     public void setId(Long id) {

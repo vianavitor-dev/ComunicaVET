@@ -9,13 +9,13 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 60)
     private String street;
 
     @Column(nullable = false)
     private int number;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 60)
     private String neighborhood;
 
     @ManyToOne

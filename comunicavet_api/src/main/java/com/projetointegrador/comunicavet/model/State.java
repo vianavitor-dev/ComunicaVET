@@ -9,10 +9,10 @@ public class State {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 60)
     private String name;
 
-    @Column(name = "state_abbreviation")
+    @Column(name = "state_abbreviation", length = 4)
     private String abbreviation;
 
     public Long getId() {

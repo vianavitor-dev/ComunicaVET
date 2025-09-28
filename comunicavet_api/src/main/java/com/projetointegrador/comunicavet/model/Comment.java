@@ -14,7 +14,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(length = 300, nullable = false)
     private String text;
 
     @ManyToOne
@@ -61,16 +61,7 @@ public class Comment {
         return reportCount;
     }
 
-    /**
-     * Atribui um valor ao número de denuncias
-     * @param reportCount valor numérico que o 'reportCount' irá receber
-     * @throws IllegalArgumentException as estrelas da clínica apenas suportam valores entre 0-10
-     * */
-    public void setReportCount(int reportCount) throws IllegalArgumentException {
-        if (reportCount > 10 || reportCount < 0) {
-            throw new IllegalArgumentException("The comment report count only supports values between 0 and 10");
-        }
-
+    public void setReportCount(int reportCount) {
         this.reportCount = reportCount;
     }
 
@@ -86,11 +77,8 @@ public class Comment {
         return createAt;
     }
 
-    public void setCreateAt(String zoneId) {
-        Instant now = Instant.now();
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(now, ZoneId.of(zoneId));
-
-        this.createAt = zonedDateTime.toLocalDate();
+    public void setCreateAt(LocalDate createAt) {
+        this.createAt = createAt;
     }
 
     public boolean isActive() {
