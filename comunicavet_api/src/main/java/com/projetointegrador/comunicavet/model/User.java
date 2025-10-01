@@ -32,8 +32,8 @@ public class User {
     @Column(name= "profile_image")
     private String profileImage;
 
-    @Column(name = "create_at", nullable = false)
-    private LocalDate createAt;
+    @Column(name = "created_at", nullable = false)
+    private LocalDate createdAt;
 
     @Column(name = "is_active", nullable = false)
     private boolean active;
@@ -93,11 +93,11 @@ public class User {
     }
 
     public LocalDate getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 
-    public void setCreateAt(LocalDate createAt) {
-        this.createAt = createAt;
+    public void setCreateAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
     }
 
     public boolean isActive() {
