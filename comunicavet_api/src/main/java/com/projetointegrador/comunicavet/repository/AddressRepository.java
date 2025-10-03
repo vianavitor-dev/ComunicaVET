@@ -21,11 +21,17 @@ public interface AddressRepository extends CrudRepository<Address, Long> {
 
     List<Address> findByCityAndCountry(City city, Country country);
 
-    List<Address> findByCityAndStateAndCountry(City city, State state, Country country);
+    Optional<Address> findByCityAndStateAndCountry(City city, State state, Country country);
 
     @Query(value = "SELECT a FROM Address a JOIN City c JOIN State s JOIN Country cc " +
             "WHERE street = ?1 AND neighborhood = ?2 AND c.name = ?3 AND s.name = ?4 AND cc.name = ?5")
     List<Address> findByAllFields(
             String street, String neighborhood, City city, State state, Country country
     );
+
+    @Query(
+            value = "SELEECT a FROM Address a JOIN City c JOIN State s JOIN Country cc" +
+                    "WHERE c.name = ?1 AND s.name = ?2 AND cc.name = ?3"
+    )
+    Optional<Address> findByCityAndStateAndCountry(String city, String state, String country);
 }
