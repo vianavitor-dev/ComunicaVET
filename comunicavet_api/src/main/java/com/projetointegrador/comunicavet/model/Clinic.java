@@ -8,14 +8,14 @@ import javax.naming.LimitExceededException;
 @DiscriminatorValue("clinic")
 public class Clinic extends User {
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int DEFAULT 0")
     private int stars;
 
-    @Column(name = "background_image", nullable = false)
+    @Column(name = "background_image", columnDefinition = "varchar(255) DEFAULT 'images/background/default.png'")
     private String backgroundImage;
 
     public Clinic() {
-        this.backgroundImage = "/example/static/images/default_background_image.png";
+        this.backgroundImage = "images/default_background_image.png";
         this.stars = 0;
     }
 

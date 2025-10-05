@@ -1,6 +1,7 @@
 package com.projetointegrador.comunicavet.model;
 
 import jakarta.persistence.*;
+import org.hibernate.id.factory.IdentifierGeneratorFactory;
 import org.springframework.cglib.core.Local;
 
 import java.time.Instant;
@@ -35,7 +36,7 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
 
-    @Column(name = "is_active", nullable = false)
+    @Column(name = "is_active", nullable = false, columnDefinition = "boolean DEFAULT true")
     private boolean active;
 
     @ManyToOne
