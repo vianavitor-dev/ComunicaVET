@@ -30,7 +30,7 @@ public interface AddressRepository extends CrudRepository<Address, Long> {
     );
 
     @Query(
-            value = "SELEECT a FROM Address a JOIN City c JOIN State s JOIN Country cc" +
+            value = "SELECT a FROM Address a JOIN City c JOIN State s JOIN Country cc " +
                     "WHERE c.name = ?1 AND s.name = ?2 AND cc.name = ?3"
     )
     Optional<Address> findByCityAndStateAndCountry(String city, String state, String country);
