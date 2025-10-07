@@ -25,7 +25,7 @@ public interface AddressRepository extends CrudRepository<Address, Long> {
 
     @Query(value = "SELECT a FROM Address a JOIN City c JOIN State s JOIN Country cc " +
             "WHERE street = ?1 AND neighborhood = ?2 AND c.name = ?3 AND s.name = ?4 AND cc.name = ?5")
-    List<Address> findByAllFields(
+    Optional<Address> findByAllFields(
             String street, String neighborhood, City city, State state, Country country
     );
 

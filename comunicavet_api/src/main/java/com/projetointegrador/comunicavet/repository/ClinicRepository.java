@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface ClinicRepository extends CrudRepository<Clinic, Long> {
-    List<User> findByName(String name);
-    Optional<User> findByEmail(String email);
+    List<Clinic> findByName(String name);
+    Optional<Clinic> findByEmail(String email);
 }

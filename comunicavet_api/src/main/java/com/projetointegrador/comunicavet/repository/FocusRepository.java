@@ -5,8 +5,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FocusRepository extends CrudRepository<Focus, Byte> {
-    List<Focus> findByName(String name);
+    Optional<Focus> findByName(String name);
 }
