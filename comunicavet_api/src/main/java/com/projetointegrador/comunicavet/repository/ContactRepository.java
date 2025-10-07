@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ContactRepository extends CrudRepository<Contact, Byte> {
+public interface ContactRepository extends CrudRepository<Contact, Long> {
     Optional<Contact> findByValue(String value);
 
     List<Contact> findByType(ContactType type);
