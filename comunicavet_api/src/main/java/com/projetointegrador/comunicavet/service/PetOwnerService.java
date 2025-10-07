@@ -42,7 +42,7 @@ public class PetOwnerService {
         }
 
         /*
-            Busca por paises, estados e cidades compativeis com oque o usuário prencheu.
+            Busca por paises, estados e cidades compativeis com oque o usuário preencheu.
             Verifica se de fato essas informações estão contidas no banco,
             então prossede criando um Endereço e salvando um novo Dono de Pet no Banco de Dados
          */
@@ -102,9 +102,11 @@ public class PetOwnerService {
         return result;
     }
 
-    public PetOwner getByEmail(@NotNull String email) throws NotFoundResourceException {
-        return repository.findByEmail(email)
+    public PetOwnerDTO getByEmail(@NotNull String email) throws NotFoundResourceException {
+        PetOwner petOwner =  repository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
+
+        return PetOwnerDTOMapper.toDto(petOwner);
     }
 
     /**
@@ -116,7 +118,8 @@ public class PetOwnerService {
      */
     public Long logIn(LoginDTO login) throws NotFoundResourceException, InvalidCredentialsException {
         // Busca Dono de Pet pelo email
-        PetOwner petOwner = this.getByEmail(login.email());
+        PetOwner petOwner = repository.findByEmail(login.email())
+                .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
         // Verifica se as senhas são compativeis
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -152,6 +155,7 @@ public class PetOwnerService {
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
         petOwner.setPassword(newPassword);
+
         Instant now = Instant.now();
         LocalDate localDateNow = ZonedDateTime.ofInstant(
                 now,
@@ -168,6 +172,7 @@ public class PetOwnerService {
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
         petOwner.setProfileImage(newImagePath);
+
         Instant now = Instant.now();
         LocalDate localDateNow = ZonedDateTime.ofInstant(
                 now,
