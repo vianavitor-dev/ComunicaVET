@@ -2,9 +2,9 @@ package com.projetointegrador.comunicavet.dto.contact;
 
 // Uso: quando for criar um novo Contato para Clinica; alterar
 public record RequestContactDTO(
-        Long id,
+        Byte id,
         Long clinicId,
-        Long contactTypeId,
+        Byte contactTypeId,
         String value
 ) {
 }
