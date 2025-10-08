@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -40,7 +41,7 @@ public class ClinicFocusService {
             throws NotFoundResourceException, DuplicateResourceException {
 
         Clinic clinic = clinicRepository.findById(dto.clinicId())
-                .orElseThrow(() -> new NotFoundResourceException(" não encontrado"));
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrado"));
 
         // Armazena os nomes dos Focos escolhidos pelo usuário
         // para impedir o registro de Focos duplicados no mesmo usuário
@@ -54,13 +55,11 @@ public class ClinicFocusService {
             chosenFocusIds.add(focusId);
         }
 
-        Byte focusId;
         // Percorre o conjunto de Ids dos Focos escolhidos até o fim
-        while ((focusId = chosenFocusIds.iterator().next()) != null) {
-            Focus focus = focusRepository.findById(focusId)
+        for (Byte chosenFocusId : chosenFocusIds) {
+            Focus focus = focusRepository.findById(chosenFocusId)
                     .orElseThrow(() -> new NotFoundResourceException("Este Foco não existe"));
 
-            // TODO: Remover funções como está do DTO
             ClinicFocus clinicFocus = ClinicFocusDTOMapper.toClinicFocus(clinic, focus);
 
             repository.save(clinicFocus);

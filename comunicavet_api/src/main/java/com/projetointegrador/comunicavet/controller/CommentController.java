@@ -61,13 +61,13 @@ public class CommentController {
     @PostMapping("/{id}/report")
     public ResponseEntity<ApiResponse<?>> addReport(@PathVariable Long id) {
         service.addReport(id);
-        return ResponseEntity.ok(new ApiResponse<>(false, "Relato adicionado", null));
+        return ResponseEntity.ok(new ApiResponse<>(false, "Denuncia adicionada", null));
     }
 
     @DeleteMapping("/{id}/report")
     public ResponseEntity<ApiResponse<?>> removeReport(@PathVariable Long id) {
         service.removeReport(id);
-        return ResponseEntity.ok(new ApiResponse<>(false, "Relato removido", null));
+        return ResponseEntity.ok(new ApiResponse<>(false, "Denuncia removida", null));
     }
 
     @DeleteMapping("/{id}")

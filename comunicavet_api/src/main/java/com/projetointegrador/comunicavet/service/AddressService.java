@@ -36,7 +36,7 @@ public class AddressService {
      * @return Caso o parametro 'returnAddress' seja verdadeiro, retorna o Endereço criado
      * @throws NotFoundResourceException Caso uma das pesquisas ao BD não retorne resultado
      */
-    public Address register(AddressDTO dto, boolean returnAddress)
+    public Address register(@NotNull AddressDTO dto, boolean returnAddress)
             throws NotFoundResourceException {
         /*
         Busca por países, estados, e cidades com nomes compativeis com oque está presente no DTO
@@ -53,19 +53,20 @@ public class AddressService {
             throw new NotFoundResourceException("Cidade não encontrada");
         }
 
-        // Verifica se este endereço já existe no Banco de Dados
+        Address address;
         Optional<Address> result = repository
                 .findByCityAndStateAndCountry(dto.city(), dto.state(), dto.country());
 
-        // Retorna o Endereço caso o 'result' não esteja vazio,
-        // se não, mapea os dados coletados e retorna um Endereço
-        Address address = result.orElseGet(() ->
-                AddressDTOMapper.toAddress(dto, country, state, cities.getFirst())
-        );
+        if (result.isEmpty()) {
+            address = AddressDTOMapper.toAddress(dto, country, state, cities.getFirst());
+
+            repository.save(address);
+        } else {
+            address = result.get();
+        }
 
         // TODO: Buscar localização deste Endereço via API, e atrelar localização ao Endereço
-
-        repository.save(address);
+//        Address address = AddressDTOMapper.toAddress(dto, country, state, cities.getFirst());
 
         if (returnAddress) {
             return address;

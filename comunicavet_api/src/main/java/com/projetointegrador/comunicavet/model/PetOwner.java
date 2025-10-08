@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 @DiscriminatorValue("pet_owner")
 public class PetOwner extends User {
 
-    @Column(name = "update_at", nullable = false)
+    @Column(name = "update_at")
     private LocalDate updateAt;
 
     public LocalDate getUpdateAt() {

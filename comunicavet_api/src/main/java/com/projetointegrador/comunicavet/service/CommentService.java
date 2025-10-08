@@ -119,7 +119,7 @@ public class CommentService {
                 .orElseThrow(() -> new NotFoundResourceException("Comentário não encontrado"));
 
         // Apenas remove a denuncia que o usuário fez
-        if (comment.getLikesCount() <= 0) {
+        if (comment.getReportCount() <= 0) {
             return;
         }
 

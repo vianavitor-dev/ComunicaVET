@@ -5,6 +5,7 @@ import com.projetointegrador.comunicavet.dto.clinic.NewClinicDTO;
 import com.projetointegrador.comunicavet.dto.user.LoginDTO;
 import com.projetointegrador.comunicavet.service.ClinicService;
 import com.projetointegrador.comunicavet.utils.ApiResponse;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

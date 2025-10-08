@@ -1,6 +1,7 @@
 package com.projetointegrador.comunicavet.repository;
 
 import com.projetointegrador.comunicavet.model.*;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -11,27 +12,35 @@ import java.util.Optional;
 
 @Repository
 public interface AddressRepository extends CrudRepository<Address, Long> {
-    List<Address> findByStreet(String street);
-
-    List<Address> findByNeighborhood(String neighborhood);
-
-    List<Address> findByNeighborhoodAndCity(String neighborhood, City city);
-
-    Optional<Address> findByLocation(Location location);
-
-    List<Address> findByCityAndCountry(City city, Country country);
 
     Optional<Address> findByCityAndStateAndCountry(City city, State state, Country country);
 
-    @Query(value = "SELECT a FROM Address a JOIN City c JOIN State s JOIN Country cc " +
-            "WHERE street = ?1 AND neighborhood = ?2 AND c.name = ?3 AND s.name = ?4 AND cc.name = ?5")
+    @Query(
+            value = "SELECT a FROM Address a " +
+                    "JOIN a.city c " +
+                    "JOIN a.state s " +
+                    "JOIN a.country co " +
+                    "WHERE a.street = ?1 " +
+                    "AND a.neighborhood = ?2 " +
+                    "AND c.name = ?3 " +
+                    "AND s.name = ?4 " +
+                    "AND co.name = ?5"
+    )
     Optional<Address> findByAllFields(
-            String street, String neighborhood, City city, State state, Country country
+            String street,
+            String neighborhood,
+            String city,
+            String state,
+            String country
     );
 
-    @Query(
-            value = "SELECT a FROM Address a JOIN City c JOIN State s JOIN Country cc " +
-                    "WHERE c.name = ?1 AND s.name = ?2 AND cc.name = ?3"
+    @Query("SELECT a FROM Address a " +
+            "WHERE a.city.name = :city " +
+            "AND a.state.name = :state " +
+            "AND a.country.name = :country"
     )
-    Optional<Address> findByCityAndStateAndCountry(String city, String state, String country);
+    Optional<Address> findByCityAndStateAndCountry(
+            @Param("city") String city,
+            @Param("state") String state,
+            @Param("country") String country);
 }

@@ -50,6 +50,6 @@ public class PetOwnerFocusController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> deleteById(@PathVariable Long id) {
         service.deleteById(id);
-        return ResponseEntity.ok(new ApiResponse<>(false, "Foco removido", null));
+        return ResponseEntity.ok(new ApiResponse<>(false, "Foco do dono de pet removido", null));
     }
 }

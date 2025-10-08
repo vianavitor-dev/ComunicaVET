@@ -154,8 +154,6 @@ public class PetOwnerService {
         PetOwner petOwner = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
-        petOwner.setPassword(newPassword);
-
         Instant now = Instant.now();
         LocalDate localDateNow = ZonedDateTime.ofInstant(
                 now,
@@ -163,6 +161,12 @@ public class PetOwnerService {
         ).toLocalDate();
 
         petOwner.setUpdateAt(localDateNow);
+
+        // Criptografa a senha
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashedPassword = encoder.encode(newPassword);
+
+        petOwner.setPassword(hashedPassword);
 
         repository.save(petOwner);
     }

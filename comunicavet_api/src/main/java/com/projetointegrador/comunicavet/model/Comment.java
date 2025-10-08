@@ -21,6 +21,10 @@ public class Comment {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "clinic_id")
+    private Clinic clinic;
+
     @Column(name = "report_count")
     private int reportCount;
 

@@ -123,7 +123,7 @@ public class ClinicService {
     public Long logIn(LoginDTO login) throws NotFoundResourceException, InvalidCredentialsException {
         // Busca Dono de Pet pelo e-mail
         Clinic clinic = repository.findByEmail(login.email())
-                .orElseThrow(() -> new NotFoundResourceException(" não encontrada"));
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
 
         // Verifica se as senhas são compativeis
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -137,7 +137,7 @@ public class ClinicService {
 
     public void changeNameAndEmail(ClinicDTO dto) throws NotFoundResourceException {
         Clinic clinic = repository.findById(dto.id())
-                .orElseThrow(() -> new NotFoundResourceException(" não encontrado"));
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrado"));
 
         clinic.setName(dto.name());
         clinic.setEmail(dto.email());
@@ -147,7 +147,7 @@ public class ClinicService {
 
     public void changePassword(Long id, String newPassword) throws NotFoundResourceException {
         Clinic clinic = repository.findById(id)
-                .orElseThrow(() -> new NotFoundResourceException(" não encontrado"));
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrado"));
 
         clinic.setPassword(newPassword);
 
@@ -156,7 +156,7 @@ public class ClinicService {
 
     public void changeProfileImage(Long id, String newImagePath) throws NotFoundResourceException {
         Clinic clinic = repository.findById(id)
-                .orElseThrow(() -> new NotFoundResourceException(" não encontrado"));
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrado"));
 
         clinic.setProfileImage(newImagePath);
 
@@ -165,7 +165,7 @@ public class ClinicService {
 
     public void changeBackgroundImage(Long id, String newImagePath) throws NotFoundResourceException {
         Clinic clinic = repository.findById(id)
-                .orElseThrow(() -> new NotFoundResourceException(" não encontrado"));
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrado"));
 
         clinic.setBackgroundImage(newImagePath);
 
@@ -174,7 +174,7 @@ public class ClinicService {
 
     public void deleteById(@NotNull Long id)  throws NotFoundResourceException {
         Clinic clinic = repository.findById(id)
-                .orElseThrow(() -> new NotFoundResourceException(" não encontrado"));
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrado"));
 
         repository.delete(clinic);
     }

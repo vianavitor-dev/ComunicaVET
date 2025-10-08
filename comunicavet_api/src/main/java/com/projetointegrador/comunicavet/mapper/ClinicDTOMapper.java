@@ -19,7 +19,7 @@ public class ClinicDTOMapper {
         c.setId(dto.id());
         c.setName(dto.name());
         c.setEmail(dto.email());
-        c.setPassword(dto.password());
+//        c.setPassword(dto.password());
         c.setAddress(address);
         c.setBackgroundImage(dto.backgroundImagePath());
         c.setProfileImage(dto.profileImagePath());
@@ -53,9 +53,8 @@ public class ClinicDTOMapper {
 
         return new ClinicDTO(
                 entity.getId(), entity.getName(), entity.getEmail(),
-                entity.getPassword(), addressDTO, entity.getStars(),
-                contacts, entity.getBackgroundImage(), entity.getProfileImage(),
-                entity.getCreateAt()
+                addressDTO, entity.getStars(), contacts, entity.getBackgroundImage(),
+                entity.getProfileImage(), entity.getCreateAt()
         );
     }
 }

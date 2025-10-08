@@ -11,7 +11,6 @@ public record ClinicDTO(
         Long id,
         String name,
         String email,
-        String password,
         AddressDTO address,
         int stars,
         List<ContactDTO> contacts,
