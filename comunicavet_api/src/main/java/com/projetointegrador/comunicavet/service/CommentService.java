@@ -5,8 +5,10 @@ import com.projetointegrador.comunicavet.dto.comment.NewCommentDTO;
 import com.projetointegrador.comunicavet.exceptions.NotFoundResourceException;
 import com.projetointegrador.comunicavet.mapper.CommentDTOMapper;
 import com.projetointegrador.comunicavet.model.Comment;
+import com.projetointegrador.comunicavet.model.LikedComment;
 import com.projetointegrador.comunicavet.model.User;
 import com.projetointegrador.comunicavet.repository.CommentRepository;
+import com.projetointegrador.comunicavet.repository.LikedCommentRepository;
 import com.projetointegrador.comunicavet.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class CommentService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private LikedCommentRepository likedCommentRepository;
 
     public void register(NewCommentDTO dto) throws NotFoundResourceException {
         User user = userRepository.findById(dto.writerId())
@@ -83,49 +88,56 @@ public class CommentService {
         repository.save(comment);
     }
 
-    public void addLike(@NotNull Long id) throws NotFoundResourceException {
+    public void addLike(@NotNull Long id, @NotNull Long userId)
+            throws NotFoundResourceException {
+
         Comment comment = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Comentário não encontrado"));
+
+        // Verifica se este Usuário já curtiu este comentário antes
+        boolean wasLikedBefore = likedCommentRepository
+                .findByUserIdAndComment(userId, comment).isPresent();
+
+        if (wasLikedBefore) {
+            return;
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundResourceException("Usuário não encontrado"));
+
+        // Registra no Banco de Dados que o Usuário curtiu este Comentário
+        LikedComment likedComment = new LikedComment();
+        likedComment.setUser(user);
+        likedComment.setComment(comment);
+
+        likedCommentRepository.save(likedComment);
 
         comment.setLikesCount(comment.getLikesCount() + 1);
         repository.save(comment);
     }
 
-    public void removeLike(@NotNull Long id) throws NotFoundResourceException {
+    public void removeLike(@NotNull Long id, @NotNull Long userId)
+            throws NotFoundResourceException {
+
         Comment comment = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Comentário não encontrado"));
 
-        // Caso a contagem de likes do comentário seja igual ou menor que zero
-        // ele não faz nada
+        // Caso a contagem de likes do Comentário seja igual ou menor que zero
+        // a função não prossegue
         if (comment.getLikesCount() <= 0) {
             return;
         }
 
-        // TODO: Fazer ele remover apenas o like que o próprio usuário adicionou
+        // Verifica se este Usuário já curtiu este comentário antes
+        LikedComment likedComment = likedCommentRepository
+                .findByUserIdAndComment(userId, comment)
+                .orElseThrow(() -> new NotFoundResourceException("Este Comentário não foi curtido ainda"));
+
+        likedCommentRepository.delete(likedComment);
+
         comment.setLikesCount(comment.getLikesCount() - 1);
         repository.save(comment);
-    }
 
-    public void addReport(@NotNull Long id) throws NotFoundResourceException {
-        Comment comment = repository.findById(id)
-                .orElseThrow(() -> new NotFoundResourceException("Comentário não encontrado"));
-
-        comment.setReportCount(comment.getReportCount() + 1);
-        repository.save(comment);
-    }
-
-    public void removeReport(@NotNull Long id) throws NotFoundResourceException {
-        Comment comment = repository.findById(id)
-                .orElseThrow(() -> new NotFoundResourceException("Comentário não encontrado"));
-
-        // Apenas remove a denuncia que o usuário fez
-        if (comment.getReportCount() <= 0) {
-            return;
-        }
-
-        // TODO: Fazer ele remover apenas a denuncia que o próprio usuário adicionou
-        comment.setReportCount(comment.getReportCount() - 1);
-        repository.save(comment);
     }
 
     public void deleteById(Long id) throws NotFoundResourceException {

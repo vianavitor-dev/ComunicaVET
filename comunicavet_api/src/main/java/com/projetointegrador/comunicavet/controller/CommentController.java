@@ -47,27 +47,15 @@ public class CommentController {
     }
 
     @PostMapping("/{id}/like")
-    public ResponseEntity<ApiResponse<?>> addLike(@PathVariable Long id) {
-        service.addLike(id);
+    public ResponseEntity<ApiResponse<?>> addLike(@PathVariable Long id, @RequestParam Long userId) {
+        service.addLike(id, userId);
         return ResponseEntity.ok(new ApiResponse<>(false, "Like adicionado", null));
     }
 
     @DeleteMapping("/{id}/like")
-    public ResponseEntity<ApiResponse<?>> removeLike(@PathVariable Long id) {
-        service.removeLike(id);
+    public ResponseEntity<ApiResponse<?>> removeLike(@PathVariable Long id, @RequestParam Long userId) {
+        service.removeLike(id, userId);
         return ResponseEntity.ok(new ApiResponse<>(false, "Like removido", null));
-    }
-
-    @PostMapping("/{id}/report")
-    public ResponseEntity<ApiResponse<?>> addReport(@PathVariable Long id) {
-        service.addReport(id);
-        return ResponseEntity.ok(new ApiResponse<>(false, "Denuncia adicionada", null));
-    }
-
-    @DeleteMapping("/{id}/report")
-    public ResponseEntity<ApiResponse<?>> removeReport(@PathVariable Long id) {
-        service.removeReport(id);
-        return ResponseEntity.ok(new ApiResponse<>(false, "Denuncia removida", null));
     }
 
     @DeleteMapping("/{id}")
