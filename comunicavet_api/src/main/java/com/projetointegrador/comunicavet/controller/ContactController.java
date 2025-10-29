@@ -16,11 +16,11 @@ public class ContactController {
     @Autowired
     private ContactService service;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<?>> register(@RequestBody RequestContactDTO dto) {
-        service.register(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(false, "Contato criado", null));
-    }
+//    @PostMapping
+//    public ResponseEntity<ApiResponse<?>> register(@RequestBody RequestContactDTO dto) {
+//        service.register(dto);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(false, "Contato criado", null));
+//    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<Iterable<ContactDTO>>> getAll() {
@@ -34,11 +34,11 @@ public class ContactController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Contatos da clínica", list));
     }
 
-    @GetMapping("/type/{contactType}")
-    public ResponseEntity<ApiResponse<Iterable<ContactDTO>>> getByType(@PathVariable String contactType) {
-        var list = service.getByType(contactType);
-        return ResponseEntity.ok(new ApiResponse<>(false, "Contatos por tipo", list));
-    }
+//    @GetMapping("/type/{contactType}")
+//    public ResponseEntity<ApiResponse<Iterable<ContactDTO>>> getByType(@PathVariable String contactType) {
+//        var list = service.getByType(contactType);
+//        return ResponseEntity.ok(new ApiResponse<>(false, "Contatos por tipo", list));
+//    }
 
     @GetMapping("/by-value")
     public ResponseEntity<ApiResponse<ContactDTO>> getByValue(@RequestParam("value") String value) {
@@ -52,11 +52,11 @@ public class ContactController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Contato encontrado", dto));
     }
 
-    @PutMapping
-    public ResponseEntity<ApiResponse<?>> changeTypeAndValue(@RequestBody RequestContactDTO dto) {
-        service.changeTypeAndValue(dto);
-        return ResponseEntity.ok(new ApiResponse<>(false, "Contato alterado", null));
-    }
+//    @PutMapping
+//    public ResponseEntity<ApiResponse<?>> changeTypeAndValue(@RequestBody RequestContactDTO dto) {
+//        service.changeTypeAndValue(dto);
+//        return ResponseEntity.ok(new ApiResponse<>(false, "Contato alterado", null));
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> deleteById(@PathVariable Long id) {

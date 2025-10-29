@@ -73,4 +73,21 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
     }
+
+    /*
+        Lida com as exceções do tipo IllegalAccessException.
+        Esta exceção é disparada quando o sistema tenta acessar
+        um dado que no qual não tem permissão
+     */
+    @ExceptionHandler(IllegalAccessException.class)
+    public ResponseEntity<?> handleIllegalAccessException(IllegalAccessException ex) {
+        /*
+            Retorna uma ResponseEntity para o Frontend, informando que houve erro,
+            assim como um status 500 (internal server error) com uma mensagem
+            informando sobre a causa da Exceção
+         */
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(true, ex.getMessage(), null));
+    }
 }

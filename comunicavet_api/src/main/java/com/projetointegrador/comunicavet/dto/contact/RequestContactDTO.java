@@ -4,7 +4,7 @@ package com.projetointegrador.comunicavet.dto.contact;
 public record RequestContactDTO(
         Long id,
         Long clinicId,
-        Byte contactTypeId,
+        String contactTypeName,
         String value
 ) {
 }

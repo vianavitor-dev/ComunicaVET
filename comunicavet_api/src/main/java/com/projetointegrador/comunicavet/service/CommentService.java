@@ -4,9 +4,11 @@ import com.projetointegrador.comunicavet.dto.comment.CommentDTO;
 import com.projetointegrador.comunicavet.dto.comment.NewCommentDTO;
 import com.projetointegrador.comunicavet.exceptions.NotFoundResourceException;
 import com.projetointegrador.comunicavet.mapper.CommentDTOMapper;
+import com.projetointegrador.comunicavet.model.Clinic;
 import com.projetointegrador.comunicavet.model.Comment;
 import com.projetointegrador.comunicavet.model.LikedComment;
 import com.projetointegrador.comunicavet.model.User;
+import com.projetointegrador.comunicavet.repository.ClinicRepository;
 import com.projetointegrador.comunicavet.repository.CommentRepository;
 import com.projetointegrador.comunicavet.repository.LikedCommentRepository;
 import com.projetointegrador.comunicavet.repository.UserRepository;
@@ -29,13 +31,19 @@ public class CommentService {
     private UserRepository userRepository;
 
     @Autowired
+    private ClinicRepository clinicRepository;
+
+    @Autowired
     private LikedCommentRepository likedCommentRepository;
 
     public void register(NewCommentDTO dto) throws NotFoundResourceException {
         User user = userRepository.findById(dto.writerId())
                 .orElseThrow(() -> new NotFoundResourceException("Usuário não encontrado"));
 
-        Comment comment = CommentDTOMapper.toComment(dto, user);
+        Clinic clinic = clinicRepository.findById(dto.clinicId())
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
+
+        Comment comment = CommentDTOMapper.toComment(dto, user, clinic);
         comment.setReportCount(0);
         comment.setLikesCount(0);
         comment.activate();
@@ -71,6 +79,16 @@ public class CommentService {
                 .toList();
 
         return result;
+    }
+
+    public Iterable<CommentDTO> getFromClinic(@NotNull Long clinicId) throws NotFoundResourceException {
+        Clinic clinic = clinicRepository.findById(clinicId)
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
+
+        return repository.findByClinic(clinic)
+                .stream()
+                .map(CommentDTOMapper::toCommentDTO)
+                .toList();
     }
 
     public CommentDTO getById(@NotNull Long id) throws NotFoundResourceException {

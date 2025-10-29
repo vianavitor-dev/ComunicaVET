@@ -36,7 +36,7 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
 
-    @Column(name = "is_active", nullable = false, columnDefinition = "boolean DEFAULT true")
+    @Column(name = "is_active", nullable = false, columnDefinition = "boolean NOT NULL DEFAULT true")
     private boolean active;
 
     @ManyToOne

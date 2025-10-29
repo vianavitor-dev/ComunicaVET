@@ -11,12 +11,21 @@ public class Clinic extends User {
     @Column(nullable = false, columnDefinition = "int DEFAULT 0")
     private int stars;
 
+    @Column(nullable = false, columnDefinition = "int DEFAULT 0")
+    private int viewers;
+
     @Column(name = "background_image", columnDefinition = "varchar(255) DEFAULT 'images/background/default.png'")
     private String backgroundImage;
 
-    public Clinic() {
-        this.backgroundImage = "images/default_background_image.png";
-        this.stars = 0;
+    @Column(columnDefinition = "text")
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getStars() {
@@ -32,10 +41,14 @@ public class Clinic extends User {
     }
 
     public void setBackgroundImage(String backgroundImage) {
-        if (backgroundImage == null) {
-            return;
-        }
-
         this.backgroundImage = backgroundImage;
+    }
+
+    public int getViewers() {
+        return viewers;
+    }
+
+    public void setViewers(int viewers) {
+        this.viewers = viewers;
     }
 }

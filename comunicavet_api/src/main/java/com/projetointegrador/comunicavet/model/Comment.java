@@ -37,6 +37,14 @@ public class Comment {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
+    public Clinic getClinic() {
+        return clinic;
+    }
+
+    public void setClinic(Clinic clinic) {
+        this.clinic = clinic;
+    }
+
     public Long getId() {
         return id;
     }

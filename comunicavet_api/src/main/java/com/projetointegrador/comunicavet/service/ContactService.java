@@ -1,8 +1,7 @@
 package com.projetointegrador.comunicavet.service;
 
 import com.projetointegrador.comunicavet.dto.contact.ContactDTO;
-import com.projetointegrador.comunicavet.dto.contact.RequestContactDTO;
-import com.projetointegrador.comunicavet.exceptions.DuplicateResourceException;
+import com.projetointegrador.comunicavet.dto.contact.ProfileContactDTO;
 import com.projetointegrador.comunicavet.exceptions.NotFoundResourceException;
 import com.projetointegrador.comunicavet.mapper.ContactDTOMapper;
 import com.projetointegrador.comunicavet.model.Clinic;
@@ -28,42 +27,35 @@ public class ContactService {
     @Autowired
     private ClinicRepository clinicRepository;
 
-    /**
-     * Salva um novo Contato no Banco de Dados e o atrela a uma Clínica.
-     * Não registra contatos duplicados (na mesma Clínica)
-     * @param dto Dados do novo Contato
-     * @throws NotFoundResourceException Caso uma das pesquisas ao BD não retorne resultado
-     * @throws DuplicateResourceException Caso a Clínica já tenha registrado este contanto anteriormente
-     */
-    public void register(RequestContactDTO dto)
-            throws NotFoundResourceException, DuplicateResourceException {
-
-        // Busca pelo tipo de Contato e Clínica que está vinculando este Contato
-        ContactType type = contactTypeRepository.findById(dto.contactTypeId())
-                .orElseThrow(() -> new NotFoundResourceException("Tipo de contato não foi encontrado"));
-
-        // Verifica se esta Clínica já registrou este Contato antes
-        boolean isDuplicate = repository.findByClinicId(dto.clinicId())
-                .stream()
-                .anyMatch(c ->
-                        // Utiliza o nome do Tipo de Contato
-                        // e o campo 'valor' do Contato para verificar
-                        // se há duplicatas
-                        c.getType().getName().equals(type.getName())
-                                && c.getValue().equals(dto.value())
-                );
-
-        if (isDuplicate) {
-            throw new DuplicateResourceException("Você já registrou esse contato antes");
-        }
-
-        Clinic clinic = clinicRepository.findById(dto.clinicId())
-                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
-
-        Contact contact = ContactDTOMapper.toContact(dto, type, clinic);
-
-        repository.save(contact);
-    }
+//    public void register(RequestContactDTO dto)
+//            throws NotFoundResourceException, DuplicateResourceException {
+//
+//        // Busca pelo tipo de Contato e Clínica que está vinculando este Contato
+//        ContactType type = contactTypeRepository.findByName(dto.contactTypeName())
+//                .orElseThrow(() -> new NotFoundResourceException("Tipo de contato não foi encontrado"));
+//
+//        // Verifica se esta Clínica já registrou este Contato antes
+//        boolean isDuplicate = repository.findByClinicId(dto.clinicId())
+//                .stream()
+//                .anyMatch(c ->
+//                        // Utiliza o nome do Tipo de Contato
+//                        // e o campo 'valor' do Contato para verificar
+//                        // se há duplicatas
+//                        c.getType().getName().equals(type.getName())
+//                                && c.getValue().equals(dto.value())
+//                );
+//
+//        if (isDuplicate) {
+//            throw new DuplicateResourceException("Você já registrou esse contato antes");
+//        }
+//
+//        Clinic clinic = clinicRepository.findById(dto.clinicId())
+//                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
+//
+//        Contact contact = ContactDTOMapper.toContact(dto, type, clinic);
+//
+//        repository.save(contact);
+//    }
 
     public Iterable<ContactDTO> getAll() {
         return ((List<Contact>) repository.findAll())
@@ -79,16 +71,16 @@ public class ContactService {
                 .toList();
     }
 
-    public Iterable<ContactDTO> getByType(@NotNull String contactType) throws NotFoundResourceException {
-        ContactType type = contactTypeRepository.findByName(contactType)
-                        .orElseThrow(() -> new NotFoundResourceException("Tipo de contato não foi encontrado"));
-
-        return repository.findByType(type)
-                .stream()
-                .map(ContactDTOMapper::toContactDto)
-                .toList();
-
-    }
+//    public Iterable<ContactDTO> getByType(@NotNull String contactType) throws NotFoundResourceException {
+//        ContactType type = contactTypeRepository.findByName(contactType)
+//                .orElseThrow(() -> new NotFoundResourceException("Tipo de contato não foi encontrado"));
+//
+//        return repository.findByType(type)
+//                .stream()
+//                .map(ContactDTOMapper::toContactDto)
+//                .toList();
+//
+//    }
 
     public ContactDTO getByValue(@NotNull String value) throws NotFoundResourceException {
         Contact contact = repository.findByValue(value)
@@ -104,17 +96,65 @@ public class ContactService {
         return ContactDTOMapper.toContactDto(contact);
     }
 
-    public void changeTypeAndValue(RequestContactDTO dto) throws NotFoundResourceException {
-        Contact contact = repository.findById(dto.id())
-                .orElseThrow(() -> new NotFoundResourceException("Contato não encontrado"));
+//    public void changeTypeAndValue(RequestContactDTO dto) throws NotFoundResourceException {
+//        Contact contact = repository.findById(dto.id())
+//                .orElseThrow(() -> new NotFoundResourceException("Contato não encontrado"));
+//
+//        ContactType type = contactTypeRepository.findByName(dto.contactTypeName())
+//                .orElseThrow(() -> new NotFoundResourceException("Tipo de contato não foi encontrado"));
+//
+//        contact.setType(type);
+//        contact.setValue(dto.value());
+//
+//        repository.save(contact);
+//    }
 
-        ContactType type = contactTypeRepository.findById(dto.contactTypeId())
-                .orElseThrow(() -> new NotFoundResourceException("Tipo de contato não foi encontrado"));
+    public void editClinicProfileContacts(Long clinicId, List<ProfileContactDTO> newContacts)
+            throws NotFoundResourceException {
 
-        contact.setType(type);
-        contact.setValue(dto.value());
+        Clinic clinic = clinicRepository.findById(clinicId)
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
 
-        repository.save(contact);
+        // Contatos atuais no BD
+        List<Contact> existingContacts = repository.findByClinicId(clinicId);
+
+        // Atualizar ou criar com base no id
+        for (ProfileContactDTO dto : newContacts) {
+            ContactType type = contactTypeRepository.findByName(dto.contactTypeName())
+                    .orElseThrow(() -> new NotFoundResourceException("Tipo de contato não encontrado"));
+
+            if (dto.id() != null) {
+                // Caso exista esse Contato, o atualiza
+                Contact contact = existingContacts.stream()
+                        .filter(c -> c.getId().equals(dto.id()))
+                        .findFirst()
+                        .orElseThrow(() -> new NotFoundResourceException("Contato não encontrado"));
+
+                contact.setType(type);
+                contact.setValue(dto.value());
+                repository.save(contact);
+
+            } else {
+                // Caso não haja ID, cria um novo Contato
+                Contact newContact = new Contact();
+                newContact.setClinic(clinic);
+                newContact.setType(type);
+                newContact.setValue(dto.value());
+                repository.save(newContact);
+            }
+        }
+
+        // Remover contatos que não vieram na lista
+        List<Long> providedIds = newContacts.stream()
+                .filter(dto -> dto.id() != null)
+                .map(ProfileContactDTO::id)
+                .toList();
+
+        for (Contact contact : existingContacts) {
+            if (!providedIds.contains(contact.getId())) {
+                repository.delete(contact);
+            }
+        }
     }
 
     public void deleteById(@NotNull Long id) throws NotFoundResourceException {

@@ -46,20 +46,36 @@ public class PetOwnerFocusService {
 
         // Armazena os nomes dos Focos escolhidos pelo usuário
         // para impedir o registro de Focos duplicados no mesmo usuário
-        Set<Byte> chosenFocusIds = new HashSet<>();
+        Set<String> chosenFocusNames = new HashSet<>();
 
-        for (Byte focusId : dto.focusIds()) {
-            if (chosenFocusIds.contains(focusId)) {
+        for (String focusName : dto.focusNames()) {
+            if (chosenFocusNames.contains(focusName)) {
                 throw new DuplicateResourceException("Você escolheu 2 Focos iguais!");
             }
 
-            chosenFocusIds.add(focusId);
+            chosenFocusNames.add(focusName);
         }
 
         // Associa o Dono de Pet a vários Focos
-        for (Byte focusId : dto.focusIds()) {
-            Focus focus = focusRepository.findById(focusId)
+        for (String focusName : dto.focusNames()) {
+            Focus focus = focusRepository.findByName(focusName)
                     .orElseThrow(() -> new NotFoundResourceException("Este Foco não existe"));
+
+            /*
+                Verifica no Banco de Dados se este Dono de Pet já registrou este Foco
+                como um dos interesses.
+             */
+            boolean isDuplicate = repository.findByFocus(focus)
+                    .stream()
+                    .anyMatch(cf ->
+                            cf.getPetOwner().getEmail().equals(petOwner.getEmail())
+                    );
+
+            // Apenas prossegue para proxima iteração caso o Foco já tenha sido registrado
+            if (isDuplicate) {
+                continue;
+                // throw new DuplicateResourceException("Você já registrou este Foco antes!");
+            }
 
             PetOwnerFocus petOwnerFocus = PetOwnerFocusDTOMapper.toPetOwnerFocus(focus, petOwner);
 

@@ -34,6 +34,13 @@ public class CommentController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Comentários do usuário", list));
     }
 
+    @GetMapping("/clinic/{clinicId}")
+    public ResponseEntity<ApiResponse<Iterable<CommentDTO>>> getFromClinic(@PathVariable Long clinicId) {
+        var list = service.getFromClinic(clinicId);
+
+        return ResponseEntity.ok(new ApiResponse<>(false, "Comentários na clínica", list));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CommentDTO>> getById(@PathVariable Long id) {
         var dto = service.getById(id);

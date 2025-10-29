@@ -2,6 +2,7 @@ package com.projetointegrador.comunicavet.controller;
 
 import com.projetointegrador.comunicavet.dto.petOwner.NewPetOwnerDTO;
 import com.projetointegrador.comunicavet.dto.petOwner.PetOwnerDTO;
+import com.projetointegrador.comunicavet.dto.petOwner.PetOwnerProfileDTO;
 import com.projetointegrador.comunicavet.dto.user.LoginDTO;
 import com.projetointegrador.comunicavet.utils.ApiResponse;
 import com.projetointegrador.comunicavet.service.PetOwnerService;
@@ -19,29 +20,38 @@ public class PetOwnerController {
     private PetOwnerService service;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> register(@RequestBody NewPetOwnerDTO dto) {
-        service.register(dto);
+    public ResponseEntity<ApiResponse<?>> register(@RequestBody NewPetOwnerDTO dto) throws IllegalAccessException {
+        Long id = service.register(dto);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(false, "Dono de pet registrado", null));
+                .body(new ApiResponse<>(false, "Dono de pet registrado", id));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<Iterable<PetOwnerDTO>>> getAll() {
-        var list = service.getAll();
+//    @GetMapping
+//    public ResponseEntity<ApiResponse<Iterable<PetOwnerDTO>>> getAll() {
+//        var list = service.getAll();
+//
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(new ApiResponse<>(false, "Lista de donos de pet", list));
+//    }
+
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<ApiResponse<PetOwnerProfileDTO>> profile(@PathVariable Long id) {
+        PetOwnerProfileDTO dto = service.viewProfile(id);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new ApiResponse<>(false, "Lista de donos de pet", list));
+                .body(new ApiResponse<>(false, "Perfil do Dono de Pet", dto));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<Iterable<PetOwnerDTO>>> getByName(@RequestParam("name") String name) {
-        var list = service.getByName(name);
-
-        return ResponseEntity.ok(new ApiResponse<>(false, "Donos encontrados", list));
-    }
+//    @GetMapping("/search")
+//    public ResponseEntity<ApiResponse<Iterable<PetOwnerDTO>>> getByName(@RequestParam("name") String name) {
+//        var list = service.getByName(name);
+//
+//        return ResponseEntity.ok(new ApiResponse<>(false, "Donos encontrados", list));
+//    }
 
     @GetMapping("/by-email")
     public ResponseEntity<ApiResponse<PetOwnerDTO>> getByEmail(@RequestParam("email") String email) {
@@ -57,11 +67,13 @@ public class PetOwnerController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Login concluído", id));
     }
 
-    @PutMapping
-    public ResponseEntity<ApiResponse<?>> changeNameAndEmail(@RequestBody PetOwnerDTO dto) {
-        service.changeNameAndEmail(dto);
+    @PutMapping("/profile/{id}")
+    public ResponseEntity<ApiResponse<?>> editProfile
+            (@PathVariable Long id, @RequestBody PetOwnerProfileDTO dto) throws IllegalAccessException {
 
-        return ResponseEntity.ok(new ApiResponse<>(false, "Nome e e-mail alterados", null));
+        service.editProfile(id, dto);
+
+        return ResponseEntity.ok(new ApiResponse<>(false, "Dados editados com sucesso", null));
     }
 
     @PatchMapping("/{id}/password")
@@ -72,7 +84,9 @@ public class PetOwnerController {
     }
 
     @PatchMapping("/{id}/profile-image")
-    public ResponseEntity<ApiResponse<?>> changeProfileImage(@PathVariable Long id, @RequestParam("path") String newImagePath) {
+    public ResponseEntity<ApiResponse<?>> changeProfileImage
+            (@PathVariable Long id, @RequestParam("path") String newImagePath) {
+
         service.changeProfileImage(id, newImagePath);
 
         return ResponseEntity.ok(new ApiResponse<>(false, "Imagem de perfil alterada", null));
@@ -84,4 +98,5 @@ public class PetOwnerController {
 
         return ResponseEntity.ok(new ApiResponse<>(false, "Dono de pet removido", null));
     }
+
 }

@@ -1,6 +1,7 @@
 package com.projetointegrador.comunicavet.mapper;
 
 import com.projetointegrador.comunicavet.dto.contact.ContactDTO;
+import com.projetointegrador.comunicavet.dto.contact.ProfileContactDTO;
 import com.projetointegrador.comunicavet.dto.contact.RequestContactDTO;
 import com.projetointegrador.comunicavet.model.Clinic;
 import com.projetointegrador.comunicavet.model.Contact;
@@ -19,6 +20,13 @@ public class ContactDTOMapper {
 
     public static ContactDTO toContactDto(Contact entity) {
         return new ContactDTO(
+                entity.getType().getName(), entity.getValue()
+        );
+    }
+
+    public static ProfileContactDTO toProfileContactDto(Contact entity) {
+        return new ProfileContactDTO(
+                entity.getId(),
                 entity.getType().getName(), entity.getValue()
         );
     }

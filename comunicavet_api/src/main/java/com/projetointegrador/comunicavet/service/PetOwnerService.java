@@ -2,6 +2,7 @@ package com.projetointegrador.comunicavet.service;
 
 import com.projetointegrador.comunicavet.dto.petOwner.NewPetOwnerDTO;
 import com.projetointegrador.comunicavet.dto.petOwner.PetOwnerDTO;
+import com.projetointegrador.comunicavet.dto.petOwner.PetOwnerProfileDTO;
 import com.projetointegrador.comunicavet.dto.user.LoginDTO;
 import com.projetointegrador.comunicavet.exceptions.DuplicateResourceException;
 import com.projetointegrador.comunicavet.exceptions.InvalidCredentialsException;
@@ -29,13 +30,16 @@ public class PetOwnerService {
     @Autowired
     private AddressService addressService;
 
+    @Autowired
+    private BCryptPasswordEncoder encoder;
+
     /**
      * Salva um novo usuário (Dono de Pet) no Banco de Dados. Não registra usuários duplicados
      * @param dto Dados do novo usuário
      * @throws NotFoundResourceException Caso uma das pesquisas ao BD não retorne resultado
      * @throws DuplicateResourceException Caso o email já esteja em uso
      */
-    public void register(NewPetOwnerDTO dto) throws NotFoundResourceException, DuplicateResourceException {
+    public Long register(NewPetOwnerDTO dto) throws NotFoundResourceException, DuplicateResourceException, IllegalAccessException {
         // Verifica se este email já foi registrado
         if (repository.findByEmail(dto.email()).isPresent()) {
             throw new DuplicateResourceException("Este email já está em uso");
@@ -46,7 +50,7 @@ public class PetOwnerService {
             Verifica se de fato essas informações estão contidas no banco,
             então prossede criando um Endereço e salvando um novo Dono de Pet no Banco de Dados
          */
-        Address address = addressService.register(dto.address(), true);
+        Address address = addressService.register(dto.address(), null, null, true);
 
         PetOwner petOwner = PetOwnerDTOMapper.toPetOwner(dto, address);
 
@@ -59,16 +63,16 @@ public class PetOwnerService {
 
         // Preenche os valores padrões em determinados campos
         petOwner.setCreateAt(localDateNow);
-        petOwner.setUpdateAt(localDateNow);
         petOwner.activate();
 
         // Criptografa a senha
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String hashedPassword = encoder.encode(dto.password());
 
         petOwner.setPassword(hashedPassword);
 
         repository.save(petOwner);
+
+        return petOwner.getId();
     }
 
     public Iterable<PetOwnerDTO> getAll() {
@@ -82,25 +86,25 @@ public class PetOwnerService {
         return result;
     }
 
-    public PetOwnerDTO getById(@NotNull(message = "Id não pode ser vazio") Long id)
+    public PetOwnerProfileDTO viewProfile(@NotNull(message = "Id não pode ser vazio") Long id)
             throws NotFoundResourceException {
 
         PetOwner petOwner = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
-        return PetOwnerDTOMapper.toDto(petOwner);
+        return PetOwnerDTOMapper.petOwnerProfileDto(petOwner);
     }
 
-    public Iterable<PetOwnerDTO> getByName(@NotNull String name) {
-        // Busca por Donos de Pet com nome compativel ao campo 'name'
-        // e mapea o resultado pra o tipo List<PetOwnerDTO>
-        List<PetOwnerDTO> result = repository.findByName(name)
-                .stream()
-                .map(PetOwnerDTOMapper::toDto)
-                .toList();
-
-        return result;
-    }
+//    public Iterable<PetOwnerDTO> getByName(@NotNull String name) {
+//        // Busca por Donos de Pet com nome compativel ao campo 'name'
+//        // e mapea o resultado pra o tipo List<PetOwnerDTO>
+//        List<PetOwnerDTO> result = repository.findByName(name)
+//                .stream()
+//                .map(PetOwnerDTOMapper::toDto)
+//                .toList();
+//
+//        return result;
+//    }
 
     public PetOwnerDTO getByEmail(@NotNull String email) throws NotFoundResourceException {
         PetOwner petOwner =  repository.findByEmail(email)
@@ -122,8 +126,6 @@ public class PetOwnerService {
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
         // Verifica se as senhas são compativeis
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
         if (!encoder.matches(login.password(), petOwner.getPassword())) {
             throw new InvalidCredentialsException("Email ou senha incorretos");
         }
@@ -131,21 +133,17 @@ public class PetOwnerService {
         return petOwner.getId();
     }
 
-    public void changeNameAndEmail(PetOwnerDTO dto) throws NotFoundResourceException {
-        PetOwner petOwner = repository.findById(dto.id())
+    public void editProfile(@NotNull Long id, @NotNull PetOwnerProfileDTO profile)
+            throws NotFoundResourceException, IllegalAccessException {
+
+        PetOwner petOwner = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
-        petOwner.setName(dto.name());
-        petOwner.setEmail(dto.email());
+        petOwner.setName(profile.name());
+        petOwner.setEmail(profile.email());
 
-        // Pega a data de hoje com base na "zona" informada
-        Instant now = Instant.now();
-        LocalDate localDateNow = ZonedDateTime.ofInstant(
-                now,
-                ZoneId.of("America/Sao_Paulo")
-        ).toLocalDate();
-
-        petOwner.setUpdateAt(localDateNow);
+        // Altera o endereço do Dono de Pet
+        addressService.modify(petOwner.getAddress().getId(), profile.address(), null, null);
 
         repository.save(petOwner);
     }
@@ -154,16 +152,7 @@ public class PetOwnerService {
         PetOwner petOwner = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
-        Instant now = Instant.now();
-        LocalDate localDateNow = ZonedDateTime.ofInstant(
-                now,
-                ZoneId.of("America/Sao_Paulo")
-        ).toLocalDate();
-
-        petOwner.setUpdateAt(localDateNow);
-
         // Criptografa a senha
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String hashedPassword = encoder.encode(newPassword);
 
         petOwner.setPassword(hashedPassword);
@@ -176,14 +165,6 @@ public class PetOwnerService {
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
         petOwner.setProfileImage(newImagePath);
-
-        Instant now = Instant.now();
-        LocalDate localDateNow = ZonedDateTime.ofInstant(
-                now,
-                ZoneId.of("America/Sao_Paulo")
-        ).toLocalDate();
-
-        petOwner.setUpdateAt(localDateNow);
 
         repository.save(petOwner);
     }

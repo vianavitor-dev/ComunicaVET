@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -40,28 +39,43 @@ public class ClinicFocusService {
     public void chooseFocus(NewClinicFocusDTO dto)
             throws NotFoundResourceException, DuplicateResourceException {
 
+        // Armazena os nomes dos Focos escolhidos pelo usuário
+        // para impedir o registro de Focos duplicados no mesmo usuário
+        Set<String> chosenFocusName = new HashSet<>();
+
+        for (String focusName : dto.focusNames()) {
+            if (chosenFocusName.contains(focusName)) {
+                throw new DuplicateResourceException("Você escolheu 2 ou mais Focos iguais!");
+            }
+
+            chosenFocusName.add(focusName);
+        }
+
         Clinic clinic = clinicRepository.findById(dto.clinicId())
                 .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrado"));
 
-        // Armazena os nomes dos Focos escolhidos pelo usuário
-        // para impedir o registro de Focos duplicados no mesmo usuário
-        Set<Byte> chosenFocusIds = new HashSet<>();
-
-        for (Byte focusId : dto.focusIds()) {
-            if (chosenFocusIds.contains(focusId)) {
-                throw new DuplicateResourceException("Você escolheu 2 Focos iguais!");
-            }
-
-            chosenFocusIds.add(focusId);
-        }
-
-        // Percorre o conjunto de Ids dos Focos escolhidos até o fim
-        for (Byte chosenFocusId : chosenFocusIds) {
-            Focus focus = focusRepository.findById(chosenFocusId)
+        // Percorre o conjunto de nomes dos Focos escolhidos até o fim
+        for (String focusName : dto.focusNames()) {
+            Focus focus = focusRepository.findByName(focusName)
                     .orElseThrow(() -> new NotFoundResourceException("Este Foco não existe"));
 
-            ClinicFocus clinicFocus = ClinicFocusDTOMapper.toClinicFocus(clinic, focus);
+            /*
+                Verifica no Banco de Dados se está Clínica já registrou este Foco
+                como um dos tipos de atendimento.
+             */
+            boolean isDuplicate = repository.findByFocus(focus)
+                    .stream()
+                    .anyMatch(cf ->
+                        cf.getClinic().getEmail().equals(clinic.getEmail())
+                    );
 
+            // Apenas prossegue para proxima iteração caso o Foco já tenha sido registrado
+            if (isDuplicate) {
+                continue;
+                // throw new DuplicateResourceException("Você já registrou este Foco antes!");
+            }
+
+            ClinicFocus clinicFocus = ClinicFocusDTOMapper.toClinicFocus(clinic, focus);
             repository.save(clinicFocus);
         }
     }
