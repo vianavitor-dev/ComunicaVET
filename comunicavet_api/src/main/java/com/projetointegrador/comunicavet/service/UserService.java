@@ -40,7 +40,7 @@ public class UserService {
 
         // Verifica se as senhas são compativeis
         if (!encoder.matches(login.password(), user.getPassword())) {
-            throw new InvalidCredentialsException("Senha incorreta");
+            throw new InvalidCredentialsException("Email ou senha incorretos");
         }
 
         return new UserIdentityDTO(user.getId(), isClinic);

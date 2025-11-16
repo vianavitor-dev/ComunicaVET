@@ -1,15 +1,22 @@
 package com.projetointegrador.comunicavet.controller;
 
+import com.projetointegrador.comunicavet.dto.image.ImageAndContentTypeDTO;
 import com.projetointegrador.comunicavet.dto.petOwner.NewPetOwnerDTO;
 import com.projetointegrador.comunicavet.dto.petOwner.PetOwnerDTO;
 import com.projetointegrador.comunicavet.dto.petOwner.PetOwnerProfileDTO;
 import com.projetointegrador.comunicavet.dto.user.LoginDTO;
+import com.projetointegrador.comunicavet.service.ImageService;
 import com.projetointegrador.comunicavet.utils.ApiResponse;
 import com.projetointegrador.comunicavet.service.PetOwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/pet-owners")
@@ -18,6 +25,9 @@ public class PetOwnerController {
 
     @Autowired
     private PetOwnerService service;
+
+    @Autowired
+    private ImageService imageService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<?>> register(@RequestBody NewPetOwnerDTO dto) throws IllegalAccessException {
@@ -83,13 +93,26 @@ public class PetOwnerController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Senha alterada", null));
     }
 
-    @PatchMapping("/{id}/profile-image")
+    @PostMapping(value = "/{id}/profile-image", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse<?>> changeProfileImage
-            (@PathVariable Long id, @RequestParam("path") String newImagePath) {
+            (@PathVariable Long id, @RequestPart("file") MultipartFile file) throws IOException {
 
-        service.changeProfileImage(id, newImagePath);
+        service.changeProfileImage(id, file);
 
         return ResponseEntity.ok(new ApiResponse<>(false, "Imagem de perfil alterada", null));
+    }
+
+    @GetMapping("/{id}/profile-image")
+    public ResponseEntity<ApiResponse<?>> getProfileImage
+            (@PathVariable Long id) throws IOException {
+
+        ImageAndContentTypeDTO result = imageService.getImageAndContentType(id, false);
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.parseMediaType(result.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + result.image().getFilename() + "\"")
+                .body(new ApiResponse<>(false, "Imagem encontrada", result.image()));
     }
 
     @DeleteMapping("/{id}")
@@ -99,4 +122,11 @@ public class PetOwnerController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Dono de pet removido", null));
     }
 
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ApiResponse<?>> handleIOException(IOException e) {
+        return new ResponseEntity<>(
+                new ApiResponse<>(true, "Erro ao salvar imagem", null),
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
 }

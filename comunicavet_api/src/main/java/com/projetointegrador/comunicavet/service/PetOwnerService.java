@@ -14,7 +14,9 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -29,6 +31,9 @@ public class PetOwnerService {
 
     @Autowired
     private AddressService addressService;
+
+    @Autowired
+    private ImageService imageService;
 
     @Autowired
     private BCryptPasswordEncoder encoder;
@@ -160,11 +165,14 @@ public class PetOwnerService {
         repository.save(petOwner);
     }
 
-    public void changeProfileImage(Long id, String newImagePath) throws NotFoundResourceException {
+    public void changeProfileImage(@NotNull Long id, @NotNull MultipartFile file)
+            throws NotFoundResourceException, IOException {
+
         PetOwner petOwner = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
-        petOwner.setProfileImage(newImagePath);
+        String imagePath = imageService.uploadImage(false, file, id);
+        petOwner.setProfileImage(imagePath);
 
         repository.save(petOwner);
     }

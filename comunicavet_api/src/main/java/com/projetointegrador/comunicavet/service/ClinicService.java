@@ -18,7 +18,9 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -50,13 +52,16 @@ public class ClinicService {
     private StaredClinicRepository staredClinicRepository;
 
     @Autowired
-    LocationApiService locationApi;
+    private LocationApiService locationApi;
 
     @Autowired
-    ClinicFocusService clinicFocusService;
+    private ClinicFocusService clinicFocusService;
 
     @Autowired
-    ContactService contactService;
+    private ContactService contactService;
+
+    @Autowired
+    private ImageService imageService;
 
     @Autowired
     private BCryptPasswordEncoder encoder;
@@ -344,24 +349,26 @@ public class ClinicService {
         repository.save(clinic);
     }
 
-    public void changeProfileImage(@NotNull Long id, String newImagePath)
-            throws NotFoundResourceException {
+    public void changeProfileImage(@NotNull Long id, @NotNull MultipartFile file)
+            throws NotFoundResourceException, IOException {
 
         Clinic clinic = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrado"));
 
-        clinic.setProfileImage(newImagePath);
+        String imagePath = imageService.uploadImage(false, file, id);
+        clinic.setProfileImage(imagePath);
 
         repository.save(clinic);
     }
 
-    public void changeBackgroundImage(@NotNull Long id, String newImagePath)
-            throws NotFoundResourceException {
+    public void changeBackgroundImage(@NotNull Long id, @NotNull MultipartFile file)
+            throws NotFoundResourceException, IOException {
 
         Clinic clinic = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrado"));
 
-        clinic.setBackgroundImage(newImagePath);
+        String imagePath = imageService.uploadImage(true, file, id);
+        clinic.setBackgroundImage(imagePath);
 
         repository.save(clinic);
     }

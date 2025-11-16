@@ -1,15 +1,21 @@
 package com.projetointegrador.comunicavet.controller;
 
 import com.projetointegrador.comunicavet.dto.clinic.*;
+import com.projetointegrador.comunicavet.dto.image.ImageAndContentTypeDTO;
 import com.projetointegrador.comunicavet.dto.user.LoginDTO;
 import com.projetointegrador.comunicavet.exceptions.NotFoundResourceException;
 import com.projetointegrador.comunicavet.service.ClinicService;
+import com.projetointegrador.comunicavet.service.ImageService;
 import com.projetointegrador.comunicavet.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +26,9 @@ public class ClinicController {
 
     @Autowired
     private ClinicService service;
+
+    @Autowired
+    private ImageService imageService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<?>> register(@RequestBody NewClinicDTO dto)
@@ -103,21 +112,59 @@ public class ClinicController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Senha alterada", null));
     }
 
-    @PatchMapping("/{id}/profile-image")
-    public ResponseEntity<ApiResponse<?>> changeProfileImage(@PathVariable Long id, @RequestParam("path") String newImagePath) {
-        service.changeProfileImage(id, newImagePath);
+    @PostMapping(value = "/{id}/profile-image", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse<?>> changeProfileImage
+            (@PathVariable Long id, @RequestPart("file") MultipartFile file) throws IOException {
+
+        service.changeProfileImage(id, file);
         return ResponseEntity.ok(new ApiResponse<>(false, "Imagem de perfil alterada", null));
     }
 
-    @PatchMapping("/{id}/background-image")
-    public ResponseEntity<ApiResponse<?>> changeBackgroundImage(@PathVariable Long id, @RequestParam("path") String newImagePath) {
-        service.changeBackgroundImage(id, newImagePath);
+    @GetMapping("/{id}/profile-image")
+    public ResponseEntity<ApiResponse<?>> getProfileImage
+            (@PathVariable Long id) throws IOException {
+
+        ImageAndContentTypeDTO result = imageService.getImageAndContentType(id, false);
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.parseMediaType(result.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + result.image().getFilename() + "\"")
+                .body(new ApiResponse<>(false, "Imagem encontrada", result.image()));
+    }
+
+    @PostMapping(value = "/{id}/background-image", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse<?>> changeBackgroundImage
+            (@PathVariable Long id, @RequestPart("file") MultipartFile file) throws IOException {
+
+        service.changeBackgroundImage(id, file);
         return ResponseEntity.ok(new ApiResponse<>(false, "Imagem de fundo alterada", null));
+    }
+
+    @GetMapping("/{id}/background-image")
+    public ResponseEntity<ApiResponse<?>> getBackgroundImage
+            (@PathVariable Long id) throws IOException {
+
+        ImageAndContentTypeDTO result = imageService.getImageAndContentType(id, true);
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.parseMediaType(result.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + result.image().getFilename() + "\"")
+                .body(new ApiResponse<>(false, "Imagem encontrada", result.image()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> deleteById(@PathVariable Long id) {
         service.deleteById(id);
         return ResponseEntity.ok(new ApiResponse<>(false, "Clínica removida", null));
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ApiResponse<?>> handleIOException(IOException e) {
+        return new ResponseEntity<>(
+                new ApiResponse<>(true, "Erro ao salvar imagem", null),
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 }
