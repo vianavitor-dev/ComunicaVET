@@ -35,7 +35,7 @@ const Favorites = () => {
     setIsLoading(true);
     try {
       const userId = localStorage.getItem("userId");
-      const response = await axios.post("http://localhost:8080/api/v1/clinics/filter", {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/clinics/filter`, {
         userId: userId ? parseInt(userId) : null,
         tagNames: null,
         newAddressDto: null,

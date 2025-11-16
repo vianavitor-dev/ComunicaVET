@@ -52,7 +52,7 @@ const Index = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/v1/focuses");
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/focuses`);
       const { error, message, data } = response.data;
 
       if (error) {
@@ -83,7 +83,7 @@ const Index = () => {
 
       // If there's a search query, use the search endpoint
       if (searchQuery.trim()) {
-        response = await axios.get(`http://localhost:8080/api/v1/clinics/search?name=${encodeURIComponent(searchQuery)}`);
+        response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/clinics/search?name=${encodeURIComponent(searchQuery)}`);
       } else {
         // Otherwise, use the filter endpoint with categories
         const requestData = {
@@ -92,7 +92,7 @@ const Index = () => {
           newAddressDto: null
         };
 
-        response = await axios.post("http://localhost:8080/api/v1/clinics/filter", requestData);
+        response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/clinics/filter`, requestData);
       }
 
       const { error, message, data } = response.data;

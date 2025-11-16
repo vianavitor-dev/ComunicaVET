@@ -38,7 +38,7 @@ const RatingSection = ({ stars = 3.0, clinicId, userId, onRatingSubmit }: Rating
 
     try {
       await axios.post(
-        `http://localhost:8080/api/v1/clinics/${clinicId}/rate?userId=${userId}&stars=${starNumber}`
+        `${import.meta.env.VITE_API_URL}/api/v1/clinics/${clinicId}/rate?userId=${userId}&stars=${starNumber}`
       );
 
       toast({

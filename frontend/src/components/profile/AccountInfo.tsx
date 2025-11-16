@@ -31,7 +31,7 @@ const AccountInfo = () => {
   const fetchUserData = async () => {
     try {
       const userId = localStorage.getItem("userId");
-      const response = await axios.get(`http://localhost:8080/api/v1/pet-owners/profile/${userId}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/pet-owners/profile/${userId}`);
       
       const { error, message, data } = response.data;
       
@@ -67,7 +67,7 @@ const AccountInfo = () => {
     setIsSaving(true);
     try {
       const userId = localStorage.getItem("userId");
-      await axios.put(`http://localhost:8080/api/v1/pet-owners/profile/${userId}`, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/pet-owners/profile/${userId}`, {
         name: userData.name,
         email: userData.email,
         address: {

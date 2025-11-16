@@ -33,7 +33,7 @@ const VerificarCodigo = () => {
     setIsLoading(true);
     
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/recover-passwords/verify?code=${encodeURIComponent(code)}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/recover-passwords/verify?code=${encodeURIComponent(code)}`, {
         method: "POST"
       });
       

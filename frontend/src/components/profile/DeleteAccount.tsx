@@ -29,7 +29,7 @@ const DeleteAccount = () => {
     try {
       const userId = localStorage.getItem("userId");
       const response = await axios.delete(
-        `http://localhost:8080/api/v1/users/deactivate/${userId}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/users/deactivate/${userId}`,
         { data: { password } }
       );
 

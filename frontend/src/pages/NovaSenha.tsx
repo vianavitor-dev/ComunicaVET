@@ -33,7 +33,7 @@ const NovaSenha = () => {
     
     try {
       const response = await fetch(
-        `http://localhost:8080/api/v1/users/${userId}/password?newPassword=${encodeURIComponent(password)}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/users/${userId}/password?newPassword=${encodeURIComponent(password)}`,
         { method: "PATCH" }
       );
       

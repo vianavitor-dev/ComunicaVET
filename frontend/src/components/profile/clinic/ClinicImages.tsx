@@ -44,7 +44,7 @@ const ClinicImages = () => {
           const formData = new FormData();
           formData.append("file", profileImage);
 
-          const response = await fetch(`http://localhost:8080/api/v1/clinics/${clinicId}/profile-image`, {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/clinics/${clinicId}/profile-image`, {
             method: "POST",
             body: formData,
           });
@@ -67,7 +67,7 @@ const ClinicImages = () => {
           const formData = new FormData();
           formData.append("file", backgroundImage);
 
-          const response = await fetch(`http://localhost:8080/api/v1/clinics/${clinicId}/background-image`, {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/clinics/${clinicId}/background-image`, {
             method: "POST",
             body: formData,
           });

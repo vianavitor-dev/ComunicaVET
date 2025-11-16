@@ -74,8 +74,8 @@ const ClinicaPerfil = () => {
       try {
         setIsLoading(true);
         const [clinicResponse, commentsResponse] = await Promise.all([
-          axios.get(`http://localhost:8080/api/v1/clinics/${id}`),
-          axios.get(`http://localhost:8080/api/v1/comments/clinic/${id}`)
+          axios.get(`${import.meta.env.VITE_API_URL}/api/v1/clinics/${id}`),
+          axios.get(`${import.meta.env.VITE_API_URL}/api/v1/comments/clinic/${id}`)
         ]);
 
         const { error, message, data } = clinicResponse.data;
@@ -113,7 +113,7 @@ const ClinicaPerfil = () => {
     if (!id || !currentUserId) return;
 
     try {
-      await axios.post(`http://localhost:8080/api/v1/favorite-clinics`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/favorite-clinics`, {
         id: null,
         petOwnerId: parseInt(currentUserId),
         clinicId: parseInt(id)
@@ -153,7 +153,7 @@ const ClinicaPerfil = () => {
     }
 
     try {
-      await axios.post(`http://localhost:8080/api/v1/comments`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/comments`, {
         text: text,
         writerId: parseInt(currentUserId),
         clinicId: parseInt(id)
@@ -166,7 +166,7 @@ const ClinicaPerfil = () => {
 
       // Refresh comments
       if (id) {
-        const commentsResponse = await axios.get(`http://localhost:8080/api/v1/comments/clinic/${id}`);
+        const commentsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/comments/clinic/${id}`);
         if (commentsResponse.data && !commentsResponse.data.error) {
           setComments(commentsResponse.data.data || []);
         }
@@ -226,7 +226,7 @@ const ClinicaPerfil = () => {
               onRatingSubmit={() => {
                 // Refresh clinic data after rating
                 if (id) {
-                  axios.get(`http://localhost:8080/api/v1/clinics/${id}`).then(response => {
+                  axios.get(`${import.meta.env.VITE_API_URL}/api/v1/clinics/${id}`).then(response => {
                     if (!response.data.error) {
                       setClinicData(response.data.data);
                     }

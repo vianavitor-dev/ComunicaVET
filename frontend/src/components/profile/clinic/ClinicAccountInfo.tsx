@@ -80,7 +80,7 @@ const ClinicAccountInfo = () => {
   const fetchClinicData = async () => {
     try {
       const userId = localStorage.getItem("userId");
-      const response = await axios.get(`http://localhost:8080/api/v1/clinics/profile/${userId}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/clinics/profile/${userId}`);
       
       if (response.data && response.data.data) {
         const clinic = response.data.data;
@@ -124,7 +124,7 @@ const ClinicAccountInfo = () => {
         modifyAddress: modifyAddress.toString(),
         modifyContacts: modifyContacts.toString(),
       });
-      await axios.put(`http://localhost:8080/api/v1/clinics/profile/${userId}?${queryParams}`, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/clinics/profile/${userId}?${queryParams}`, {
         name: clinicData.name,
         email: clinicData.email,
         address: {

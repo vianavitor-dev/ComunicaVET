@@ -47,7 +47,7 @@ const ProfileImage = () => {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await fetch(`http://localhost:8080/api/v1/pet-owners/${petOwnerId}/profile-image`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/pet-owners/${petOwnerId}/profile-image`, {
         method: "POST",
         body: formData,
       });

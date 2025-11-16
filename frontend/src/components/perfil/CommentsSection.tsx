@@ -32,7 +32,7 @@ const CommentItem = ({ comment, userId }: { comment: Comment; userId?: string })
     if (!userId) return;
     
     try {
-      await axios.post(`http://localhost:8080/api/v1/comments/${comment.id}/like?userId=${userId}`);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/comments/${comment.id}/like?userId=${userId}`);
       
       if (liked) {
         setLikeCount(likeCount - 1);
@@ -51,7 +51,7 @@ const CommentItem = ({ comment, userId }: { comment: Comment; userId?: string })
       <div className="flex gap-3">
         <Avatar className="w-10 h-10">
           <AvatarImage 
-            src={`http://localhost:8080/api/v1/pet-owners/${comment.writerId}/profile-image`}
+            src={`${import.meta.env.VITE_API_URL}/api/v1/pet-owners/${comment.writerId}/profile-image`}
             alt={comment.writerName}
           />
           <AvatarFallback>{comment.writerName?.charAt(0) || "?"}</AvatarFallback>

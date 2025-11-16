@@ -44,7 +44,7 @@ const EscolherTags = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/v1/focuses");
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/focuses`);
       const { error, message, data } = response.data;
 
       if (error) {
@@ -92,8 +92,8 @@ const EscolherTags = () => {
 
     try {
       const endpoint = isClinic 
-        ? "http://localhost:8080/api/v1/clinic-focuses"
-        : "http://localhost:8080/api/v1/pet-owner-focuses";
+        ? `${import.meta.env.VITE_API_URL}/api/v1/clinic-focuses`
+        : `${import.meta.env.VITE_API_URL}/api/v1/pet-owner-focuses`;
 
       const requestData = isClinic
         ? { clinicId: userId, focusNames: selectedCategories }

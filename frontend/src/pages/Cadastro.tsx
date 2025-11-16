@@ -48,7 +48,7 @@ const Cadastro = () => {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/v1/countries");
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/countries`);
         
         if (!response.data.error && response.data.data) {
           setCountries(response.data.data);
@@ -105,8 +105,8 @@ const Cadastro = () => {
       };
 
       const endpoint = isClinic 
-        ? "http://localhost:8080/api/v1/clinics"
-        : "http://localhost:8080/api/v1/pet-owners";
+        ? `${import.meta.env.VITE_API_URL}/api/v1/clinics`
+        : `${import.meta.env.VITE_API_URL}/api/v1/pet-owners`;
 
       const response = await axios.post(endpoint, requestData);
 

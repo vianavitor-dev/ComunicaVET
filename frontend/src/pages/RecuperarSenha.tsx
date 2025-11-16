@@ -19,7 +19,7 @@ const RecuperarSenha = () => {
     setIsLoading(true);
     
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/email-senders?to=${encodeURIComponent(email)}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/email-senders?to=${encodeURIComponent(email)}`, {
         method: "POST"
       });
       
