@@ -20,7 +20,6 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/pet-owners")
-@CrossOrigin("*")
 public class PetOwnerController {
 
     @Autowired

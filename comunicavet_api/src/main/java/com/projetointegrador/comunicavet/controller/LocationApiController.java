@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/location-apis")
-@CrossOrigin("*")
 public class LocationApiController {
     @Autowired
     private LocationApiService service;

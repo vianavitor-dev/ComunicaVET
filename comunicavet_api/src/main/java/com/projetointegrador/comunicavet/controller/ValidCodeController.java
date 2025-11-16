@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/recover-passwords")
-@CrossOrigin("*")
 public class ValidCodeController {
     @Autowired
     private ValidCodeService service;
