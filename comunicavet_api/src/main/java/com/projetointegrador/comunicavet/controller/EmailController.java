@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/email-senders")
-@CrossOrigin("*")
 public class EmailController {
     @Autowired
     private EmailService service;
