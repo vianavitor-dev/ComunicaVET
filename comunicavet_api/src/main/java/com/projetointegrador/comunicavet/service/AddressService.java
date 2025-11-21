@@ -78,10 +78,10 @@ public class AddressService {
                     Optional.ofNullable(format), Optional.ofNullable(limit)
             )[0];
 
-            Location location = (LocationDTOMapper.toLocation(apiResponseData));
-            locationRepository.save(location);
+            // Em vez de criar uma Location, setamos a latitude e longitude no Address
+            address.setLatitude(Double.parseDouble(apiResponseData.lat()));
+            address.setLongitude(Double.parseDouble(apiResponseData.lon()));
 
-            address.setLocation(location);
             repository.save(address);
 
         } else {
@@ -173,15 +173,10 @@ public class AddressService {
                 Optional.ofNullable(format), Optional.ofNullable(limit)
         )[0];
 
-        /*
-            Transforma o resultado da busca do Nominatim API (DTO) em uma
-            entidade (Location), então atualiza o valor da Localização presente
-            no Endereço pela nova antes de salvar as alterações do Endereço
-         */
-        Location location = LocationDTOMapper.toLocation(apiResponseData);
-        locationRepository.save(location);
+        // Atualiza a latitude e longitude do Address
+        address.setLatitude(Double.parseDouble(apiResponseData.lat()));
+        address.setLongitude(Double.parseDouble(apiResponseData.lon()));
 
-        address.setLocation(location);
         repository.save(address);
     }
 

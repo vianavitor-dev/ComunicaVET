@@ -13,7 +13,8 @@ public record AddressDTO(
         String country,
         int number,
         String neighborhood,
-        Location location,
+        double latitude,   // novo campo
+        double longitude,  // novo campo
         String complement
 ) {
 }

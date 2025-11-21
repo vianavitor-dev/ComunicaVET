@@ -160,16 +160,20 @@ public class ClinicService {
         // Quando endereço informado for um endereço diferente do que o Dono de Pet tem
         // busca a localização deste endereço
         if (isNewAddress) {
+            System.out.println("Is new address?!");
             LocationDTO[] result = locationApi
                     .getLocationByAddress(dto, Optional.empty(), Optional.empty());
 
+            if (result.length == 0) {
+                throw new NotFoundResourceException("Localização não encontrada");
+            }
             userLat = Double.parseDouble(result[0].lat());
             userLon = Double.parseDouble(result[0].lon());
 
             // Caso este seja o endereço padrão do Dono de Pet, apenas pega latitude e longitude
         } else {
-            userLat = petOwner.getAddress().getLocation().getLatitude();
-            userLon = petOwner.getAddress().getLocation().getLongitude();
+            userLat = petOwner.getAddress().getLatitude();
+            userLon = petOwner.getAddress().getLongitude();
         }
 
         return repository

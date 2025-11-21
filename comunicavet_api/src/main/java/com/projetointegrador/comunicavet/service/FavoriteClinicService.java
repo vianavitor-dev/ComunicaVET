@@ -111,11 +111,13 @@ public class FavoriteClinicService {
                 .toFavoriteClinicDTO(favoriteClinic, contacts.toArray(new Contact[0]));
     }
 
-    public void removeById(@NotNull Long id) throws NotFoundResourceException {
+    public void removeById(@NotNull Long clinicId) throws NotFoundResourceException {
 
-        FavoriteClinic favoriteClinic = repository.findById(id)
-                .orElseThrow(() -> new NotFoundResourceException("Clinica Favoritada não encontrada"));
+        Clinic clinic = clinicRepository.findById(clinicId)
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
 
-        repository.delete(favoriteClinic);
+        var favoritedClinics = repository.findByClinic(clinic);
+
+        repository.deleteAll(favoritedClinics);
     }
 }
