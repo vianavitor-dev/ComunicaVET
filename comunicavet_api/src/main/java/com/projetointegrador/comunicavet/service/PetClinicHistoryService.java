@@ -4,7 +4,6 @@ import com.projetointegrador.comunicavet.dto.petClinicHistory.PetClinicRegisterD
 import com.projetointegrador.comunicavet.exceptions.NotFoundResourceException;
 import com.projetointegrador.comunicavet.mapper.ClinicDTOMapper;
 import com.projetointegrador.comunicavet.mapper.PetClinicHistoryDTOMapper;
-import com.projetointegrador.comunicavet.model.Contact;
 import com.projetointegrador.comunicavet.model.PetClinicHistory;
 import com.projetointegrador.comunicavet.model.Pet;
 import com.projetointegrador.comunicavet.model.Clinic;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,9 +26,6 @@ public class PetClinicHistoryService {
 
     @Autowired
     private ClinicRepository clinicRepository;
-
-    @Autowired
-    private ContactRepository contactRepository;
 
     @Autowired
     private FavoriteClinicRepository favoriteClinicRepository;
@@ -58,9 +53,6 @@ public class PetClinicHistoryService {
         PetClinicHistory history = petClinicHistoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Registro de agendamento do Pet não encontrado"));
 
-        // Busca os contatos da Clínica atual pelo Id da Clínica
-        List<Contact> contacts = contactRepository.findByClinicId(history.getClinic().getId());
-
         // Verifica se o usuário já favoritou determinada Clínica
         boolean wasFavorited = favoriteClinicRepository
                 .findByPetOwner(history.getPet().getPetOwner())
@@ -69,9 +61,9 @@ public class PetClinicHistoryService {
                         favoriteClinic.getClinic().getEmail().equals(history.getClinic().getEmail())
                 );
 
-        var card = ClinicDTOMapper.clinicCardDTO(history.getClinic(), contacts.toArray(new Contact[0]), wasFavorited);
+        var card = ClinicDTOMapper.clinicCardDTO(history.getClinic(), wasFavorited);
 
-        return PetClinicHistoryDTOMapper.toPetClinicRegisterDTO(history, contacts.toArray(new Contact[0]), wasFavorited);
+        return PetClinicHistoryDTOMapper.toPetClinicRegisterDTO(history, wasFavorited);
     }
 
     public List<PetClinicRegisterDTO> getByPet(Long petId) throws NotFoundResourceException{
@@ -81,9 +73,6 @@ public class PetClinicHistoryService {
         List<PetClinicHistory> histories = petClinicHistoryRepository.findByPet(pet);
         return histories.stream()
                 .map(register -> {
-                    // Busca os contatos da Clínica atual pelo Id da Clínica
-                    List<Contact> contacts = contactRepository.findByClinicId(register.getClinic().getId());
-
                     // Verifica se o usuário já favoritou determinada Clínica
                     boolean wasFavorited = favoriteClinicRepository
                             .findByPetOwner(pet.getPetOwner())
@@ -92,9 +81,9 @@ public class PetClinicHistoryService {
                                     favoriteClinic.getClinic().getEmail().equals(register.getClinic().getEmail())
                             );
 
-                    var card = ClinicDTOMapper.clinicCardDTO(register.getClinic(), contacts.toArray(new Contact[0]), wasFavorited);
+                    var card = ClinicDTOMapper.clinicCardDTO(register.getClinic(), wasFavorited);
 
-                    return PetClinicHistoryDTOMapper.toPetClinicRegisterDTO(register, contacts.toArray(new Contact[0]), wasFavorited);
+                    return PetClinicHistoryDTOMapper.toPetClinicRegisterDTO(register, wasFavorited);
                 })
                 .collect(Collectors.toList());
     }

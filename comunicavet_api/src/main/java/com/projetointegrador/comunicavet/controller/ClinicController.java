@@ -98,10 +98,9 @@ public class ClinicController {
     @PutMapping("/profile/{id}")
     public ResponseEntity<ApiResponse<?>> editProfile
             (@PathVariable Long id, @RequestBody ClinicProfileDTO dto,
-             @RequestParam boolean modifyAddress, @RequestParam boolean modifyContacts)
-            throws IllegalAccessException {
+             @RequestParam boolean modifyAddress) throws IllegalAccessException { // REMOVIDO: modifyContacts
 
-        service.editProfile(id, dto, modifyAddress, modifyContacts);
+        service.editProfile(id, dto, modifyAddress, false); // ALTERADO: modifyContacts sempre false
         return ResponseEntity.ok(new ApiResponse<>(false, "Perfil da clínica editado", null));
     }
 

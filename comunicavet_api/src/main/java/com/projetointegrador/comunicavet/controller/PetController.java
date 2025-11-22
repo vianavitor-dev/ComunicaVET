@@ -32,9 +32,9 @@ public class PetController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/owner/{ownerId}")
-    public ResponseEntity<ApiResponse<List<PetCardDTO>>> getByOwner(@PathVariable Long ownerId) {
-        var pets = petService.getByOwner(ownerId);
+    @GetMapping("/owner/{petOwnerId}")
+    public ResponseEntity<ApiResponse<List<PetCardDTO>>> getByOwner(@PathVariable Long petOwnerId) {
+        var pets = petService.getByOwner(petOwnerId);
 
         return ResponseEntity.ok(new ApiResponse<>(false, "Lista de Pets que pertencem ao Dono de Pet", pets));
     }

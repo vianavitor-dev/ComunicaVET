@@ -5,11 +5,9 @@ import com.projetointegrador.comunicavet.dto.favoriteClinic.RequestFavoriteClini
 import com.projetointegrador.comunicavet.exceptions.NotFoundResourceException;
 import com.projetointegrador.comunicavet.mapper.FavoriteClinicDTOMapper;
 import com.projetointegrador.comunicavet.model.Clinic;
-import com.projetointegrador.comunicavet.model.Contact;
 import com.projetointegrador.comunicavet.model.FavoriteClinic;
 import com.projetointegrador.comunicavet.model.PetOwner;
 import com.projetointegrador.comunicavet.repository.ClinicRepository;
-import com.projetointegrador.comunicavet.repository.ContactRepository;
 import com.projetointegrador.comunicavet.repository.FavoriteClinicRepository;
 import com.projetointegrador.comunicavet.repository.PetOwnerRepository;
 import jakarta.validation.constraints.NotNull;
@@ -29,15 +27,12 @@ public class FavoriteClinicService {
     @Autowired
     private ClinicRepository clinicRepository;
 
-    @Autowired
-    private ContactRepository contactRepository;
+    // REMOVIDO: ContactRepository
 
     public void add(RequestFavoriteClinicDTO dto) throws NotFoundResourceException {
-        // Dono de Pet que está tendando favoritar a Clínica
         PetOwner petOwner = petOwnerRepository.findById(dto.petOwnerId())
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
-        // Clínica que esta sendo favoritada
         Clinic clinic = clinicRepository.findById(dto.clinicId())
                 .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
 
@@ -48,16 +43,10 @@ public class FavoriteClinicService {
     }
 
     public Iterable<FavoriteClinicDTO> getAll() {
+        // REMOVIDO: Busca de contatos
         return ((List<FavoriteClinic>) repository.findAll())
                 .stream()
-                .map(favoriteClinic -> {
-                    // Busca os meios de contato da Clínica
-                    List<Contact> contacts = contactRepository
-                            .findByClinicId(favoriteClinic.getClinic().getId());
-
-                    return FavoriteClinicDTOMapper
-                            .toFavoriteClinicDTO(favoriteClinic, contacts.toArray(new Contact[0]));
-                })
+                .map(FavoriteClinicDTOMapper::toFavoriteClinicDTO)
                 .toList();
     }
 
@@ -65,37 +54,25 @@ public class FavoriteClinicService {
             throws NotFoundResourceException {
 
         Clinic clinic = clinicRepository.findById(clinicId)
-                        .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
+                .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
 
+        // REMOVIDO: Busca de contatos
         return repository.findByClinic(clinic)
                 .stream()
-                .map(favoriteClinic -> {
-                    // Busca os meios de contato da Clínica
-                    List<Contact> contacts = contactRepository
-                            .findByClinicId(favoriteClinic.getClinic().getId());
-
-                    return FavoriteClinicDTOMapper
-                            .toFavoriteClinicDTO(favoriteClinic, contacts.toArray(new Contact[0]));
-                })
+                .map(FavoriteClinicDTOMapper::toFavoriteClinicDTO)
                 .toList();
     }
 
     public Iterable<FavoriteClinicDTO> getByPetOwnerId(@NotNull Long petOwnerId)
-        throws NotFoundResourceException {
+            throws NotFoundResourceException {
 
         PetOwner petOwner = petOwnerRepository.findById(petOwnerId)
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
+        // REMOVIDO: Busca de contatos
         return repository.findByPetOwner(petOwner)
                 .stream()
-                .map(favoriteClinic -> {
-                    // Busca os meios de contato da Clínica
-                    List<Contact> contacts = contactRepository
-                            .findByClinicId(favoriteClinic.getClinic().getId());
-
-                    return FavoriteClinicDTOMapper
-                            .toFavoriteClinicDTO(favoriteClinic, contacts.toArray(new Contact[0]));
-                })
+                .map(FavoriteClinicDTOMapper::toFavoriteClinicDTO)
                 .toList();
     }
 
@@ -103,16 +80,11 @@ public class FavoriteClinicService {
         FavoriteClinic favoriteClinic = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Clinica Favoritada não encontrada"));
 
-        // Busca os meios de contato da Clínica
-        List<Contact> contacts = contactRepository
-                .findByClinicId(favoriteClinic.getClinic().getId());
-
-        return FavoriteClinicDTOMapper
-                .toFavoriteClinicDTO(favoriteClinic, contacts.toArray(new Contact[0]));
+        // REMOVIDO: Busca de contatos
+        return FavoriteClinicDTOMapper.toFavoriteClinicDTO(favoriteClinic);
     }
 
     public void removeById(@NotNull Long clinicId) throws NotFoundResourceException {
-
         Clinic clinic = clinicRepository.findById(clinicId)
                 .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
 

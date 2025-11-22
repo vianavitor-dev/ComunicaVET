@@ -33,9 +33,6 @@ public class AddressService {
     @Autowired
     private LocationApiService nominatimService;
 
-    @Autowired
-    private LocationRepository locationRepository;
-
     /**
      *Cria um novo Endereço. Não registra Endereços duplicados
      * @param dto Dados necessários para criação do Endereço
@@ -62,15 +59,18 @@ public class AddressService {
                     .orElseThrow(() -> new NotFoundResourceException("Estado não encontrado"));
 
             List<City> cities = cityRepository.findByName(dto.city());
+            City newCity;
 
             if (cities.isEmpty()) {
-                City newCity = new City();
+                newCity = new City();
                 newCity.setName(dto.city());
 
                 cityRepository.save(newCity);
+            } else {
+                newCity = cities.getFirst();
             }
 
-            address = AddressDTOMapper.toAddress(dto, country, state, cities.getFirst());
+            address = AddressDTOMapper.toAddress(dto, country, state, newCity);
 
             // Busca localização deste Endereço via API, e atrelar localização ao Endereço
             LocationDTO apiResponseData = nominatimService.getLocationByAddress(
