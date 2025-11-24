@@ -13,7 +13,7 @@ import com.projetointegrador.comunicavet.mapper.ClinicDTOMapper;
 import com.projetointegrador.comunicavet.mapper.LocationDTOMapper;
 import com.projetointegrador.comunicavet.model.*;
 import com.projetointegrador.comunicavet.repository.*;
-import com.projetointegrador.comunicavet.service.nominatimApi.LocationApiService;
+import com.projetointegrador.comunicavet.service.externalApi.NominatimService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -51,7 +51,7 @@ public class ClinicService {
     private StaredClinicRepository staredClinicRepository;
 
     @Autowired
-    private LocationApiService locationApi;
+    private NominatimService locationApi;
 
     @Autowired
     private ClinicFocusService clinicFocusService;

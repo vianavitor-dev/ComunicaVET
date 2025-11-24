@@ -53,17 +53,7 @@ public class PetClinicHistoryService {
         PetClinicHistory history = petClinicHistoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Registro de agendamento do Pet não encontrado"));
 
-        // Verifica se o usuário já favoritou determinada Clínica
-        boolean wasFavorited = favoriteClinicRepository
-                .findByPetOwner(history.getPet().getPetOwner())
-                .stream()
-                .anyMatch(favoriteClinic ->
-                        favoriteClinic.getClinic().getEmail().equals(history.getClinic().getEmail())
-                );
-
-        var card = ClinicDTOMapper.clinicCardDTO(history.getClinic(), wasFavorited);
-
-        return PetClinicHistoryDTOMapper.toPetClinicRegisterDTO(history, wasFavorited);
+        return PetClinicHistoryDTOMapper.toPetClinicRegisterDTO(history);
     }
 
     public List<PetClinicRegisterDTO> getByPet(Long petId) throws NotFoundResourceException{
@@ -72,19 +62,7 @@ public class PetClinicHistoryService {
 
         List<PetClinicHistory> histories = petClinicHistoryRepository.findByPet(pet);
         return histories.stream()
-                .map(register -> {
-                    // Verifica se o usuário já favoritou determinada Clínica
-                    boolean wasFavorited = favoriteClinicRepository
-                            .findByPetOwner(pet.getPetOwner())
-                            .stream()
-                            .anyMatch(favoriteClinic ->
-                                    favoriteClinic.getClinic().getEmail().equals(register.getClinic().getEmail())
-                            );
-
-                    var card = ClinicDTOMapper.clinicCardDTO(register.getClinic(), wasFavorited);
-
-                    return PetClinicHistoryDTOMapper.toPetClinicRegisterDTO(register, wasFavorited);
-                })
+                .map(PetClinicHistoryDTOMapper::toPetClinicRegisterDTO)
                 .collect(Collectors.toList());
     }
 }

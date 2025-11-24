@@ -72,4 +72,10 @@ public class ClinicDTOMapper {
                 wasFavorited
         );
     }
+
+    public static ClinicHistoryCardDTO toClinicHistoryCardDTO(Clinic entity) {
+        return new ClinicHistoryCardDTO(
+                entity.getId(), entity.getName()
+        );
+    }
 }

@@ -5,13 +5,13 @@ import com.projetointegrador.comunicavet.model.PetClinicHistory;
 
 public class PetClinicHistoryDTOMapper {
 
-    public static PetClinicRegisterDTO toPetClinicRegisterDTO(PetClinicHistory history, boolean wasFavorited) {
-        var clinicCardDto = ClinicDTOMapper.clinicCardDTO(history.getClinic(), wasFavorited);
+    public static PetClinicRegisterDTO toPetClinicRegisterDTO(PetClinicHistory history) {
+        var clinicHistoryCardDTO = ClinicDTOMapper.toClinicHistoryCardDTO(history.getClinic());
 
         return new PetClinicRegisterDTO(
                 history.getId(),
                 history.getRegisteredAt(),
-                clinicCardDto
+                clinicHistoryCardDTO
         );
     }
 }

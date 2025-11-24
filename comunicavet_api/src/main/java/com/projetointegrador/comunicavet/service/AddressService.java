@@ -8,7 +8,7 @@ import com.projetointegrador.comunicavet.mapper.AddressDTOMapper;
 import com.projetointegrador.comunicavet.mapper.LocationDTOMapper;
 import com.projetointegrador.comunicavet.model.*;
 import com.projetointegrador.comunicavet.repository.*;
-import com.projetointegrador.comunicavet.service.nominatimApi.LocationApiService;
+import com.projetointegrador.comunicavet.service.externalApi.NominatimService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class AddressService {
     private CityRepository cityRepository;
 
     @Autowired
-    private LocationApiService nominatimService;
+    private NominatimService nominatimService;
 
     /**
      *Cria um novo Endereço. Não registra Endereços duplicados
