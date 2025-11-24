@@ -8,7 +8,7 @@ import com.projetointegrador.comunicavet.mapper.AddressDTOMapper;
 import com.projetointegrador.comunicavet.mapper.LocationDTOMapper;
 import com.projetointegrador.comunicavet.model.*;
 import com.projetointegrador.comunicavet.repository.*;
-import com.projetointegrador.comunicavet.service.nominatimApi.LocationApiService;
+import com.projetointegrador.comunicavet.service.externalApi.NominatimService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,10 +31,7 @@ public class AddressService {
     private CityRepository cityRepository;
 
     @Autowired
-    private LocationApiService nominatimService;
-
-    @Autowired
-    private LocationRepository locationRepository;
+    private NominatimService nominatimService;
 
     /**
      *Cria um novo Endereço. Não registra Endereços duplicados
@@ -62,15 +59,18 @@ public class AddressService {
                     .orElseThrow(() -> new NotFoundResourceException("Estado não encontrado"));
 
             List<City> cities = cityRepository.findByName(dto.city());
+            City newCity;
 
             if (cities.isEmpty()) {
-                City newCity = new City();
+                newCity = new City();
                 newCity.setName(dto.city());
 
                 cityRepository.save(newCity);
+            } else {
+                newCity = cities.getFirst();
             }
 
-            address = AddressDTOMapper.toAddress(dto, country, state, cities.getFirst());
+            address = AddressDTOMapper.toAddress(dto, country, state, newCity);
 
             // Busca localização deste Endereço via API, e atrelar localização ao Endereço
             LocationDTO apiResponseData = nominatimService.getLocationByAddress(
@@ -78,10 +78,10 @@ public class AddressService {
                     Optional.ofNullable(format), Optional.ofNullable(limit)
             )[0];
 
-            Location location = (LocationDTOMapper.toLocation(apiResponseData));
-            locationRepository.save(location);
+            // Em vez de criar uma Location, setamos a latitude e longitude no Address
+            address.setLatitude(Double.parseDouble(apiResponseData.lat()));
+            address.setLongitude(Double.parseDouble(apiResponseData.lon()));
 
-            address.setLocation(location);
             repository.save(address);
 
         } else {
@@ -173,15 +173,10 @@ public class AddressService {
                 Optional.ofNullable(format), Optional.ofNullable(limit)
         )[0];
 
-        /*
-            Transforma o resultado da busca do Nominatim API (DTO) em uma
-            entidade (Location), então atualiza o valor da Localização presente
-            no Endereço pela nova antes de salvar as alterações do Endereço
-         */
-        Location location = LocationDTOMapper.toLocation(apiResponseData);
-        locationRepository.save(location);
+        // Atualiza a latitude e longitude do Address
+        address.setLatitude(Double.parseDouble(apiResponseData.lat()));
+        address.setLongitude(Double.parseDouble(apiResponseData.lon()));
 
-        address.setLocation(location);
         repository.save(address);
     }
 

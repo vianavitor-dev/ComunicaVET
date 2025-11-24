@@ -1,18 +1,16 @@
 package com.projetointegrador.comunicavet.mapper;
 
 import com.projetointegrador.comunicavet.dto.clinic.ClinicCardDTO;
-import com.projetointegrador.comunicavet.dto.clinic.ClinicDTO;
-import com.projetointegrador.comunicavet.dto.contact.ContactDTO;
 import com.projetointegrador.comunicavet.dto.favoriteClinic.FavoriteClinicDTO;
-import com.projetointegrador.comunicavet.dto.favoriteClinic.RequestFavoriteClinicDTO;
-import com.projetointegrador.comunicavet.model.*;
+import com.projetointegrador.comunicavet.model.Clinic;
+import com.projetointegrador.comunicavet.model.FavoriteClinic;
+import com.projetointegrador.comunicavet.model.PetOwner;
 
 public class FavoriteClinicDTOMapper {
-    public static FavoriteClinicDTO toFavoriteClinicDTO
-            (FavoriteClinic entity, Contact[] clinicContacts) {
-
+    public static FavoriteClinicDTO toFavoriteClinicDTO(FavoriteClinic entity) {
+        // ALTERADO: Remove o parâmetro Contact[] e usa o método clinicCardDTO atualizado
         ClinicCardDTO clinicCardDto = ClinicDTOMapper.clinicCardDTO(
-                entity.getClinic(), clinicContacts, true
+                entity.getClinic(), true
         );
 
         return new FavoriteClinicDTO(

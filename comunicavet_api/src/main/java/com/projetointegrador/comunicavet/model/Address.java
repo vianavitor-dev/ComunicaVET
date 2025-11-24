@@ -30,9 +30,11 @@ public class Address {
     @JoinColumn(name = "country_id")
     private Country country;
 
-    @OneToOne
-    @JoinColumn( name = "location_id", unique = true)
-    private Location location;
+    @Column(nullable = false)
+    private double latitude;
+
+    @Column(nullable = false)
+    private double longitude;
 
     @Column(columnDefinition = "TEXT")
     private String complement;
@@ -93,12 +95,20 @@ public class Address {
         this.country = country;
     }
 
-    public Location getLocation() {
-        return location;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
     public String getComplement() {

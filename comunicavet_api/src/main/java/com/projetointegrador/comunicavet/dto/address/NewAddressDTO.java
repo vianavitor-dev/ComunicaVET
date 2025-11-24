@@ -1,6 +1,5 @@
 package com.projetointegrador.comunicavet.dto.address;
 
-import com.projetointegrador.comunicavet.model.Location;
 import jakarta.validation.constraints.NotNull;
 
 /*

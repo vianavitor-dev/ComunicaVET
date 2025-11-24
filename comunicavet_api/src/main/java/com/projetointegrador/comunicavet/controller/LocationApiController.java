@@ -2,7 +2,7 @@ package com.projetointegrador.comunicavet.controller;
 
 import com.projetointegrador.comunicavet.dto.location.LocationDTO;
 import com.projetointegrador.comunicavet.dto.location.SearchLocationDTO;
-import com.projetointegrador.comunicavet.service.nominatimApi.LocationApiService;
+import com.projetointegrador.comunicavet.service.externalApi.NominatimService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import java.util.Optional;
 @RequestMapping("/api/v1/location-apis")
 public class LocationApiController {
     @Autowired
-    private LocationApiService service;
+    private NominatimService service;
 
     @GetMapping("/city")
     public ResponseEntity<?> getByCity(@NotNull @RequestParam("name") String city) {

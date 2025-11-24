@@ -1,7 +1,11 @@
 package com.projetointegrador.comunicavet.service;
 
 import com.projetointegrador.comunicavet.dto.image.ImageAndContentTypeDTO;
+import com.projetointegrador.comunicavet.exceptions.NotFoundResourceException;
+import com.projetointegrador.comunicavet.model.User;
+import com.projetointegrador.comunicavet.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -24,6 +28,9 @@ public class ImageService {
 
     @Value("${image.path}")
     private String baseImageUrlPath;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public String uploadImage
             (@NotNull boolean isBackgroundImage, @NotNull MultipartFile imageFile, @NotNull Long userId)
@@ -58,8 +65,11 @@ public class ImageService {
         return uniqueImageName;
     }
 
-    public ImageAndContentTypeDTO getImageAndContentType(@PathVariable Long userId, @PathVariable boolean isBackgroundImage)
-            throws IOException, MalformedURLException {
+    public ImageAndContentTypeDTO getImageAndContentType
+            (@NotNull Optional<Long> optionalUserId,
+             @NotNull Optional<String> optionalEmail,
+             @NotNull boolean isBackgroundImage
+            ) throws IOException, MalformedURLException, NotFoundResourceException {
 
         String imageUrlPath = baseImageUrlPath + "/profileImages";
         if (isBackgroundImage) {
@@ -67,8 +77,19 @@ public class ImageService {
         }
 
         Path foulderPath = Path.of(imageUrlPath);
+        User user;
 
-        File image = this.getById(userId, foulderPath.toFile())
+        if (optionalEmail.isPresent()) {
+            user = userRepository.findByEmail(optionalEmail.get())
+                    .orElseThrow(() -> new NotFoundResourceException("Usuário não encontrado"));
+        } else if (optionalUserId.isPresent()) {
+            user = userRepository.findById(optionalUserId.get())
+                    .orElseThrow(() -> new NotFoundResourceException("Usuário não encontrado"));
+        } else {
+            throw new NullPointerException("Nenhum campo foi preenchido");
+        }
+
+        File image = this.getById(user.getId(), foulderPath.toFile())
                 .orElseThrow(() -> new IOException("Imagem não encontrada"));
 
         Path filePath = Path.of(image.getPath()).normalize();

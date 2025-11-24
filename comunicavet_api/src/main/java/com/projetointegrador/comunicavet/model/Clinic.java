@@ -17,6 +17,8 @@ public class Clinic extends User {
     @Column(name = "background_image", columnDefinition = "varchar(255) DEFAULT 'images/background/default.png'")
     private String backgroundImage;
 
+    private String phone;
+
     @Column(columnDefinition = "text")
     private String description;
 
@@ -50,5 +52,13 @@ public class Clinic extends User {
 
     public void setViewers(int viewers) {
         this.viewers = viewers;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

@@ -22,11 +22,11 @@ public interface ClinicRepository extends CrudRepository<Clinic, Long> {
             AND c.address.country.name = :country
             AND c.address.state.name = :state
             AND c.address.city.name = :city
-            ORDER BY FUNCTION('distance_function', c.address.location.latitude, c.address.location.longitude, :userLat, :userLon)
+            ORDER BY FUNCTION('distance_function', c.address.latitude, c.address.longitude, :userLat, :userLon)
             """)
     List<Clinic> filterBy(
             @Param("focusNames") List<String> focusNames, @Param("country")String country,
             @Param("state")String state, @Param("city")String city,
-            @Param("userLon") double userLon, @Param("userLat") double userLat
+            @Param("userLat") double userLat, @Param("userLon") double userLon
     );
 }

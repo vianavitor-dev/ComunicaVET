@@ -1,7 +1,6 @@
 package com.projetointegrador.comunicavet.dto.clinic;
 
 import com.projetointegrador.comunicavet.dto.address.AddressDTO;
-import com.projetointegrador.comunicavet.dto.contact.ContactDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,7 +12,7 @@ public record ClinicDTO(
         String email,
         AddressDTO address,
         int stars,
-        List<ContactDTO> contacts,
+        String phone, // ALTERADO: De List<ContactDTO> para String
         String backgroundImagePath,
         String profileImagePath,
         LocalDate createdAt

@@ -45,9 +45,9 @@ public class FavoriteClinicController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Favorito encontrado", dto));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<?>> removeById(@PathVariable Long id) {
-        service.removeById(id);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ApiResponse<?>> removeById(@PathVariable(name = "id") Long clinicId) {
+        service.removeById(clinicId);
         return ResponseEntity.ok(new ApiResponse<>(false, "Favorito removido", null));
     }
 }

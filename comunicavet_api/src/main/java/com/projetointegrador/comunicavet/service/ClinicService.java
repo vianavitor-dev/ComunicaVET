@@ -13,7 +13,7 @@ import com.projetointegrador.comunicavet.mapper.ClinicDTOMapper;
 import com.projetointegrador.comunicavet.mapper.LocationDTOMapper;
 import com.projetointegrador.comunicavet.model.*;
 import com.projetointegrador.comunicavet.repository.*;
-import com.projetointegrador.comunicavet.service.nominatimApi.LocationApiService;
+import com.projetointegrador.comunicavet.service.externalApi.NominatimService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -36,8 +36,7 @@ public class ClinicService {
     @Autowired
     private AddressService addressService;
 
-    @Autowired
-    private ContactRepository contactRepository;
+    // REMOVIDO: ContactRepository, ContactService
 
     @Autowired
     private PetOwnerRepository petOwnerRepository;
@@ -52,13 +51,10 @@ public class ClinicService {
     private StaredClinicRepository staredClinicRepository;
 
     @Autowired
-    private LocationApiService locationApi;
+    private NominatimService locationApi;
 
     @Autowired
     private ClinicFocusService clinicFocusService;
-
-    @Autowired
-    private ContactService contactService;
 
     @Autowired
     private ImageService imageService;
@@ -66,12 +62,6 @@ public class ClinicService {
     @Autowired
     private BCryptPasswordEncoder encoder;
 
-    /**
-     * Salva um novo usuário (Clínica) no Banco de Dados. Não registra usuários duplicados
-     * @param dto Dados do novo usuário
-     * @throws NotFoundResourceException Caso uma das pesquisas ao BD não retorne resultado
-     * @throws DuplicateResourceException Caso o email já esteja em uso
-     */
     public Long register(NewClinicDTO dto)
             throws NotFoundResourceException, DuplicateResourceException, IllegalAccessException {
 
@@ -80,11 +70,6 @@ public class ClinicService {
             throw new DuplicateResourceException("Este email já está em uso");
         }
 
-        /*
-            Busca por paises, estados e cidades compativeis com oque o usuário prencheu.
-            Verifica se de fato essas informações estão contidas no banco,
-            então prossede criando um Endereço e salvando uma nova Clínica no Banco de Dados
-         */
         Address address = addressService.register(dto.address(), null, null, true);
 
         Clinic clinic = ClinicDTOMapper.toClinic(dto, address);
@@ -112,35 +97,20 @@ public class ClinicService {
     public Iterable<ClinicDTO> getAll() {
         List<ClinicDTO> result = ((List<Clinic>) repository.findAll())
                 .stream()
-                .map(clinic -> {
-                    // Busca os contatos da Clínica atual pelo Id da Clínica
-                    List<Contact> contacts = contactRepository.findByClinicId(clinic.getId());
-
-                    return ClinicDTOMapper.toClinicDto(clinic, contacts.toArray(new Contact[0]));
-                })
+                .map(ClinicDTOMapper::toClinicDto) // ALTERADO: Não precisa mais buscar contatos
                 .toList();
 
         return result;
     }
 
-    /**
-     *
-     * @param optionalTags Tags que o usuário está interessado
-     * @param optionalDto Dados do endereço, caso o usuário esteja de viajem
-     * @throws NotFoundResourceException Caso não consiga encontra o usuário no sistema
-     * @return
-     */
     public Iterable<ClinicCardDTO> filter
-        (Long userId, Optional<List<String>> optionalTags, Optional<SearchLocationDTO> optionalDto)
+            (Long userId, Optional<List<String>> optionalTags, Optional<SearchLocationDTO> optionalDto)
             throws NotFoundResourceException, IllegalAccessException {
 
         PetOwner petOwner = petOwnerRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundResourceException("Dono de Pet não encontrado"));
 
-        // Caso o Dono de Pet não tenha providenciado nenhuma tag como filtro
-        // o sistema ira buscar as tags(Focos) que ele indicou ter interesse anteriormente
         List<String> tagNames = optionalTags.orElseGet(() ->
-                // Busca pelos Focos que o usuário escolheu
                 petOwnerFocusRepository.findByPetOwner(petOwner)
                         .stream()
                         .map(
@@ -151,44 +121,39 @@ public class ClinicService {
         double userLat, userLon;
         boolean isNewAddress = optionalDto.isPresent();
 
-        // Caso o Dono de Pet não tenha providenciado um endereço diferente
-        // o sistema ira utilizar o endereço o próprio endereço dele
         SearchLocationDTO dto = optionalDto.orElseGet(() ->
                 LocationDTOMapper.toSearchLocationDTO(petOwner.getAddress())
         );
 
-        // Quando endereço informado for um endereço diferente do que o Dono de Pet tem
-        // busca a localização deste endereço
         if (isNewAddress) {
+            System.out.println("Is new address?!");
             LocationDTO[] result = locationApi
                     .getLocationByAddress(dto, Optional.empty(), Optional.empty());
 
+            if (result.length == 0) {
+                throw new NotFoundResourceException("Localização não encontrada");
+            }
             userLat = Double.parseDouble(result[0].lat());
             userLon = Double.parseDouble(result[0].lon());
 
-            // Caso este seja o endereço padrão do Dono de Pet, apenas pega latitude e longitude
         } else {
-            userLat = petOwner.getAddress().getLocation().getLatitude();
-            userLon = petOwner.getAddress().getLocation().getLongitude();
+            userLat = petOwner.getAddress().getLatitude();
+            userLon = petOwner.getAddress().getLongitude();
         }
 
         return repository
                 .filterBy(tagNames, dto.country(), dto.state(), dto.city(), userLat, userLon)
                 .stream()
                 .map(clinic -> {
-                    // Busca os contatos da Clínica atual pelo Id da Clínica
-                    List<Contact> contacts = contactRepository.findByClinicId(clinic.getId());
-
-                    // Verifica se o usuário já favoritou determinada Clínica
+                    // REMOVIDO: Busca de contatos
                     boolean wasFavorited = favoriteClinicRepository
                             .findByPetOwner(petOwner)
                             .stream()
                             .anyMatch(favoriteClinic ->
-                                favoriteClinic.getClinic().getEmail().equals(clinic.getEmail())
+                                    favoriteClinic.getClinic().getEmail().equals(clinic.getEmail())
                             );
 
-                    return ClinicDTOMapper
-                            .clinicCardDTO(clinic, contacts.toArray(new Contact[0]), wasFavorited);
+                    return ClinicDTOMapper.clinicCardDTO(clinic, wasFavorited);
                 })
                 .toList();
     }
@@ -196,12 +161,7 @@ public class ClinicService {
     public Iterable<ClinicCardDTO> getByName(@NotNull String name) {
         List<ClinicCardDTO> result = repository.findByName(name)
                 .stream()
-                .map(clinic -> {
-                    // Busca os contatos da Clínica atual pelo Id da Clínica
-                    List<Contact> contacts = contactRepository.findByClinicId(clinic.getId());
-
-                    return ClinicDTOMapper.clinicCardDTO(clinic, contacts.toArray(new Contact[0]), false);
-                })
+                .map(clinic -> ClinicDTOMapper.clinicCardDTO(clinic, false)) // ALTERADO: Não precisa mais buscar contatos
                 .toList();
 
         return result;
@@ -211,38 +171,25 @@ public class ClinicService {
         Clinic clinic = repository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
 
-        List<Contact> contacts = contactRepository.findByClinicId(clinic.getId());
-
-        return ClinicDTOMapper.toClinicDto(clinic, contacts.toArray(new Contact[0]));
+        return ClinicDTOMapper.toClinicDto(clinic); // ALTERADO: Não precisa mais buscar contatos
     }
 
     public ClinicProfileDTO viewProfile(@NotNull Long id) throws NotFoundResourceException {
         Clinic clinic = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
 
-        List<Contact> contacts = contactRepository.findByClinicId(clinic.getId());
-
         List<FocusDTO> focuses = ((List<ClinicFocusDTO>) clinicFocusService.getByClinicId(id))
                 .stream()
                 .map(ClinicFocusDTO::focus)
                 .toList();
 
-        return ClinicDTOMapper.toClinicProfileDto(clinic, contacts, focuses);
+        return ClinicDTOMapper.toClinicProfileDto(clinic, focuses); // ALTERADO: Não precisa mais buscar contatos
     }
 
-    /**
-     *Busca o usuário pelo e-mail e senha
-     * @param login Contem dados como e-mail e senha
-     * @return Id do usuário
-     * @throws NotFoundResourceException Caso não encontre o usuário pelo e-mail
-     * @throws InvalidCredentialsException Caso os campos estejam incorretos
-     */
     public Long logIn(LoginDTO login) throws NotFoundResourceException, InvalidCredentialsException {
-        // Busca Clínica pelo e-mail
         Clinic clinic = repository.findByEmail(login.email())
                 .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrada"));
 
-        // Verifica se as senhas são compativeis
         if (!encoder.matches(login.password(), clinic.getPassword())) {
             throw new InvalidCredentialsException("Email ou senha incorretos");
         }
@@ -260,14 +207,13 @@ public class ClinicService {
         clinic.setName(profile.name());
         clinic.setEmail(profile.email());
         clinic.setDescription(profile.description());
+        clinic.setPhone(profile.phone()); // NOVO: definir telefone
 
         if (modifyAddress) {
             addressService.modify(clinic.getAddress().getId(), profile.address(), null, null);
         }
 
-        if (modifyContacts) {
-            contactService.editClinicProfileContacts(id, profile.contacts());
-        }
+        // REMOVIDO: modifyContacts (não existe mais)
 
         repository.save(clinic);
     }
@@ -275,8 +221,6 @@ public class ClinicService {
     public ClinicInfoDTO showInfo(@NotNull Long id) throws NotFoundResourceException {
         Clinic clinic = repository.findById(id)
                 .orElseThrow(() -> new NotFoundResourceException("Clínica não encontrado"));
-
-        List<Contact> contacts = contactRepository.findByClinicId(clinic.getId());
 
         List<FocusDTO> focuses = ((List<ClinicFocusDTO>) clinicFocusService.getByClinicId(id))
                 .stream()
@@ -286,14 +230,13 @@ public class ClinicService {
         boolean wasFavorited = favoriteClinicRepository.findByClinic(clinic)
                 .stream()
                 .anyMatch(favorited ->
-                    favorited.getClinic().getEmail().equals(clinic.getEmail())
+                        favorited.getClinic().getEmail().equals(clinic.getEmail())
                 );
 
-        // Adiciona uma visualização a página da clínica
         clinic.setViewers(clinic.getViewers() + 1);
         repository.save(clinic);
 
-        return ClinicDTOMapper.toClinicInfoDTO(clinic, contacts, focuses, wasFavorited);
+        return ClinicDTOMapper.toClinicInfoDTO(clinic, focuses, wasFavorited); // ALTERADO: Não precisa mais buscar contatos
     }
 
     public void rateClinic(@NotNull Long id, @NotNull Long petOwnerId, @NotNull Integer stars)

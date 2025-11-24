@@ -7,7 +7,9 @@ import com.projetointegrador.comunicavet.exceptions.NotFoundResourceException;
 import com.projetointegrador.comunicavet.service.ClinicService;
 import com.projetointegrador.comunicavet.service.ImageService;
 import com.projetointegrador.comunicavet.utils.ApiResponse;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,7 +23,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/clinics")
-@CrossOrigin("*")
 public class ClinicController {
 
     @Autowired
@@ -64,7 +65,7 @@ public class ClinicController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Perfil da Clínica", dto));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:[0-9]+}")
     public ResponseEntity<ApiResponse<ClinicInfoDTO>> view(@PathVariable Long id) {
         var dto = service.showInfo(id);
 
@@ -97,10 +98,9 @@ public class ClinicController {
     @PutMapping("/profile/{id}")
     public ResponseEntity<ApiResponse<?>> editProfile
             (@PathVariable Long id, @RequestBody ClinicProfileDTO dto,
-             @RequestParam boolean modifyAddress, @RequestParam boolean modifyContacts)
-            throws IllegalAccessException {
+             @RequestParam boolean modifyAddress) throws IllegalAccessException { // REMOVIDO: modifyContacts
 
-        service.editProfile(id, dto, modifyAddress, modifyContacts);
+        service.editProfile(id, dto, modifyAddress, false); // ALTERADO: modifyContacts sempre false
         return ResponseEntity.ok(new ApiResponse<>(false, "Perfil da clínica editado", null));
     }
 
@@ -120,18 +120,18 @@ public class ClinicController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Imagem de perfil alterada", null));
     }
 
-    @GetMapping("/{id}/profile-image")
-    public ResponseEntity<ApiResponse<?>> getProfileImage
-            (@PathVariable Long id) throws IOException {
-
-        ImageAndContentTypeDTO result = imageService.getImageAndContentType(id, false);
-
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.parseMediaType(result.contentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + result.image().getFilename() + "\"")
-                .body(new ApiResponse<>(false, "Imagem encontrada", result.image()));
-    }
+//    @GetMapping("/{id}/profile-image")
+//    public ResponseEntity<ApiResponse<?>> getProfileImage
+//            (@PathVariable Long id) throws IOException {
+//
+//        ImageAndContentTypeDTO result = imageService.getImageAndContentType(id, false);
+//
+//        return ResponseEntity
+//                .ok()
+//                .contentType(MediaType.parseMediaType(result.contentType()))
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + result.image().getFilename() + "\"")
+//                .body(new ApiResponse<>(false, "Imagem encontrada", result.image()));
+//    }
 
     @PostMapping(value = "/{id}/background-image", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse<?>> changeBackgroundImage
@@ -142,16 +142,17 @@ public class ClinicController {
     }
 
     @GetMapping("/{id}/background-image")
-    public ResponseEntity<ApiResponse<?>> getBackgroundImage
+    public ResponseEntity<Resource> getBackgroundImage
             (@PathVariable Long id) throws IOException {
 
-        ImageAndContentTypeDTO result = imageService.getImageAndContentType(id, true);
+        ImageAndContentTypeDTO result = imageService
+                .getImageAndContentType(Optional.ofNullable(id), Optional.empty(), true);
 
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.parseMediaType(result.contentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + result.image().getFilename() + "\"")
-                .body(new ApiResponse<>(false, "Imagem encontrada", result.image()));
+                .body(result.image());
     }
 
     @DeleteMapping("/{id}")

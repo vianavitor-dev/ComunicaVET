@@ -13,7 +13,8 @@ public class AddressDTOMapper {
     public static Address toAddress(AddressDTO dto, Country country, State state, City city) {
         Address addr = new Address();
         addr.setId(dto.id());
-        addr.setLocation(dto.location());
+        addr.setLatitude(dto.latitude());   // novo
+        addr.setLongitude(dto.longitude()); // novo
         addr.setCountry(country);
         addr.setCity(city);
         addr.setStreet(dto.street());
@@ -30,7 +31,8 @@ public class AddressDTOMapper {
                 entity.getId(),
                 entity.getStreet(), entity.getCity().getName(), entity.getState().getName(),
                 entity.getCountry().getName(), entity.getNumber(), entity.getNeighborhood(),
-                entity.getLocation(), entity.getComplement()
+                entity.getLatitude(), entity.getLongitude(), // novos campos
+                entity.getComplement()
         );
     }
 

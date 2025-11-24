@@ -101,18 +101,18 @@ public class PetOwnerController {
         return ResponseEntity.ok(new ApiResponse<>(false, "Imagem de perfil alterada", null));
     }
 
-    @GetMapping("/{id}/profile-image")
-    public ResponseEntity<ApiResponse<?>> getProfileImage
-            (@PathVariable Long id) throws IOException {
-
-        ImageAndContentTypeDTO result = imageService.getImageAndContentType(id, false);
-
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.parseMediaType(result.contentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + result.image().getFilename() + "\"")
-                .body(new ApiResponse<>(false, "Imagem encontrada", result.image()));
-    }
+//    @GetMapping("/{id}/profile-image")
+//    public ResponseEntity<?> getProfileImage
+//            (@PathVariable Long id) throws IOException {
+//
+//        ImageAndContentTypeDTO result = imageService.getImageAndContentType(id, false);
+//
+//        return ResponseEntity
+//                .ok()
+//                .contentType(MediaType.parseMediaType(result.contentType()))
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + result.image().getFilename() + "\"")
+//                .body(result.image());
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> deleteById(@PathVariable Long id) {

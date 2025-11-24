@@ -1,13 +1,9 @@
 package com.projetointegrador.comunicavet.dto.clinic;
 
-import com.projetointegrador.comunicavet.dto.contact.ContactDTO;
-
-import java.util.List;
-
 public record ClinicCardDTO(
         Long id,
         String name,
-        List<ContactDTO> contacts,
+        String phone, // ALTERADO: De List<ContactDTO> para String
         String countryName,
         String stateName,
         String cityName,

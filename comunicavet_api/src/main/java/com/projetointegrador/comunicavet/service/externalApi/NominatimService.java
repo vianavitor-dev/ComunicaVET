@@ -1,4 +1,4 @@
-package com.projetointegrador.comunicavet.service.nominatimApi;
+package com.projetointegrador.comunicavet.service.externalApi;
 
 import com.projetointegrador.comunicavet.dto.location.ReverseLocationDTO;
 import com.projetointegrador.comunicavet.dto.location.SearchLocationDTO;
@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 @Service
-public class LocationApiService {
+public class NominatimService {
     /*
         RestTemplate:
         - Utilizado para acessar outras APIs de forma sincrona
