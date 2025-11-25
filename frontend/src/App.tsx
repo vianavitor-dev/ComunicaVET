@@ -20,6 +20,7 @@ import PoliticaCookies from "./pages/PoliticaCookies";
 import Perfil from "./pages/Perfil";
 import PerfilClinica from "./pages/PerfilClinica";
 import ClinicaPerfil from "./pages/ClinicaPerfil";
+import MeusPets from "./pages/MeusPets";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/perfil-clinica" element={<PerfilClinica />} />
           <Route path="/clinica-perfil/:id?" element={<ClinicaPerfil />} />
+          <Route path="/meus-pets" element={<MeusPets />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

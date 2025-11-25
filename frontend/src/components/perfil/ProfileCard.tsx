@@ -1,4 +1,4 @@
-import { Mail, Phone, Instagram, MessageCircle, Link as LinkIcon } from "lucide-react";
+import { Phone } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -33,44 +33,9 @@ const ProfileCard = ({
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <Mail className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-            <div className="text-sm break-all">{email}</div>
-          </div>
-          
           <div className="flex items-center gap-3">
             <Phone className="w-5 h-5 text-muted-foreground flex-shrink-0" />
             <div className="text-sm">{phone}</div>
-          </div>
-        </div>
-
-        <div className="space-y-3 pt-4 border-t">
-          <h3 className="font-semibold">Outros Contatos</h3>
-          <div className="flex gap-4">
-            <a 
-              href={`https://instagram.com/${instagram.replace('@', '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-[#FFC107] via-[#E4405F] to-[#833AB4] text-white hover:scale-110 transition-transform"
-            >
-              <Instagram className="w-6 h-6" />
-            </a>
-            <a 
-              href={`https://wa.me/${whatsapp.replace(/\D/g, '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-12 h-12 rounded-full bg-[#25D366] text-white hover:scale-110 transition-transform"
-            >
-              <MessageCircle className="w-6 h-6" />
-            </a>
-            <a 
-              href={website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-12 h-12 rounded-full bg-[#0088CC] text-white hover:scale-110 transition-transform"
-            >
-              <LinkIcon className="w-6 h-6" />
-            </a>
           </div>
         </div>
       </CardContent>

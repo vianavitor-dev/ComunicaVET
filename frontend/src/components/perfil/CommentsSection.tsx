@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThumbsUp, Send } from "lucide-react";
+import { useDateFormatter } from "@/hooks/useDateFormatter";
 
 interface Comment {
   id: number;
@@ -25,8 +26,11 @@ interface CommentsSectionProps {
 
 
 const CommentItem = ({ comment, userId }: { comment: Comment; userId?: string }) => {
+  const { formatDate } = useDateFormatter();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(comment.likesCount);
+  
+  const avatarUrl = `${import.meta.env.VITE_API_URL}/api/v1/users/profile-image?email=${comment.writerEmail}`;
 
   const handleLike = async () => {
     if (!userId) return;
@@ -51,19 +55,21 @@ const CommentItem = ({ comment, userId }: { comment: Comment; userId?: string })
       <div className="flex gap-3">
         <Avatar className="w-10 h-10">
           <AvatarImage 
-            src={`${import.meta.env.VITE_API_URL}/api/v1/pet-owners/${comment.writerId}/profile-image`}
+            src={avatarUrl}
             alt={comment.writerName}
           />
           <AvatarFallback>{comment.writerName?.charAt(0) || "?"}</AvatarFallback>
         </Avatar>
-        <div className="flex-1 space-y-2">
-          <div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-semibold text-sm">{comment.writerName}</span>
-              <span className="text-xs text-muted-foreground">{comment.createdAt}</span>
+          <div className="flex-1 space-y-2">
+            <div>
+              <div className="flex items-baseline gap-2">
+                <span className="font-semibold text-sm">{comment.writerName}</span>
+                <span className="text-xs text-muted-foreground">
+                  {formatDate(comment.createdAt, "PPp")}
+                </span>
+              </div>
+              <p className="text-sm mt-1">{comment.text}</p>
             </div>
-            <p className="text-sm mt-1">{comment.text}</p>
-          </div>
           <div className="flex items-center gap-4">
             <button 
               onClick={handleLike}

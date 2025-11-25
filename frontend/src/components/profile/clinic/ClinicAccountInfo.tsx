@@ -10,12 +10,6 @@ import { X } from "lucide-react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 
-interface Contact {
-  id?: number | null;
-  contactTypeName: string;
-  value: string;
-}
-
 interface Focus {
   name: string;
   description: string | null;
@@ -24,6 +18,7 @@ interface Focus {
 interface ClinicData {
   name: string;
   email: string;
+  phone: string;
   address: {
     country: string;
     state: string;
@@ -34,25 +29,18 @@ interface ClinicData {
     complement: string;
   };
   description: string;
-  contacts: Contact[];
   focuses: Focus[];
 }
-
-const CONTACT_TYPES = [
-  { name: "social", label: "Social" },
-  { name: "phone-number", label: "Phone Number" },
-  { name: "e-mail", label: "E-mail" },
-];
 
 const ClinicAccountInfo = () => {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [modifyAddress, setModifyAddress] = useState(false);
-  const [modifyContacts, setModifyContacts] = useState(false);
   const [clinicData, setClinicData] = useState<ClinicData>({
     name: "",
     email: "",
+    phone: "",
     address: {
       country: "",
       state: "",
@@ -63,11 +51,6 @@ const ClinicAccountInfo = () => {
       complement: "",
     },
     description: "",
-    contacts: [
-      { id: null, contactTypeName: "social", value: "" },
-      { id: null, contactTypeName: "phone-number", value: "" },
-      { id: null, contactTypeName: "e-mail", value: "" },
-    ],
     focuses: [],
   });
   const [newFocus, setNewFocus] = useState("");
@@ -87,6 +70,7 @@ const ClinicAccountInfo = () => {
         setClinicData({
           name: clinic.name || "",
           email: clinic.email || "",
+          phone: clinic.phone || "",
           address: {
             country: clinic.address?.country || "",
             state: clinic.address?.state || "",
@@ -97,13 +81,6 @@ const ClinicAccountInfo = () => {
             complement: clinic.address?.complement || "",
           },
           description: clinic.description || "",
-          contacts: clinic.contacts && clinic.contacts.length > 0 
-            ? clinic.contacts 
-            : [
-                { id: null, contactTypeName: "social", value: "" },
-                { id: null, contactTypeName: "phone-number", value: "" },
-                { id: null, contactTypeName: "e-mail", value: "" },
-              ],
           focuses: clinic.focuses || [],
         });
       }
@@ -122,11 +99,11 @@ const ClinicAccountInfo = () => {
       const userId = localStorage.getItem("userId");
       const queryParams = new URLSearchParams({
         modifyAddress: modifyAddress.toString(),
-        modifyContacts: modifyContacts.toString(),
       });
       await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/clinics/profile/${userId}?${queryParams}`, {
         name: clinicData.name,
         email: clinicData.email,
+        phone: clinicData.phone,
         address: {
           country: clinicData.address.country,
           state: clinicData.address.state,
@@ -137,11 +114,6 @@ const ClinicAccountInfo = () => {
           complement: clinicData.address.complement || null,
         },
         description: clinicData.description,
-        contacts: clinicData.contacts.filter(c => c.value.trim() !== "").map(c => ({
-          id: c.id || null,
-          contactTypeName: c.contactTypeName,
-          value: c.value
-        })),
         focuses: clinicData.focuses,
       });
 
@@ -151,7 +123,6 @@ const ClinicAccountInfo = () => {
       });
       setIsEditing(false);
       setModifyAddress(false);
-      setModifyContacts(false);
     } catch (error) {
       toast({
         title: t("login.error"),
@@ -217,6 +188,18 @@ const ClinicAccountInfo = () => {
             value={clinicData.email}
             onChange={(e) => setClinicData({ ...clinicData, email: e.target.value })}
             disabled={!isEditing}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="phone">{t("clinicProfile.phone")}</Label>
+          <Input
+            id="phone"
+            type="tel"
+            value={clinicData.phone}
+            onChange={(e) => setClinicData({ ...clinicData, phone: e.target.value })}
+            disabled={!isEditing}
+            placeholder="+55 (11) 99999-9999"
           />
         </div>
 
@@ -345,50 +328,6 @@ const ClinicAccountInfo = () => {
             rows={6}
             className="resize-none"
           />
-        </div>
-
-        <div className="space-y-2">
-          <Label>{t("clinicProfile.contact")}</Label>
-          {clinicData.contacts.map((contact, index) => (
-            <div key={index} className="space-y-2">
-              <Label htmlFor={`contact-${index}`} className="text-sm">{t("clinicProfile.contactLabel")} {index + 1}</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <Input
-                  id={`contact-${index}`}
-                  value={contact.value}
-                  onChange={(e) => {
-                    const newContacts = [...clinicData.contacts];
-                    newContacts[index] = { ...newContacts[index], value: e.target.value };
-                    setClinicData({ ...clinicData, contacts: newContacts });
-                    setModifyContacts(true);
-                  }}
-                  disabled={!isEditing}
-                  placeholder={t("clinicProfile.contactPlaceholder")}
-                />
-                <Select
-                  value={contact.contactTypeName}
-                  onValueChange={(value) => {
-                    const newContacts = [...clinicData.contacts];
-                    newContacts[index] = { ...newContacts[index], contactTypeName: value };
-                    setClinicData({ ...clinicData, contacts: newContacts });
-                    setModifyContacts(true);
-                  }}
-                  disabled={!isEditing}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("clinicProfile.contactType")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CONTACT_TYPES.map((type) => (
-                      <SelectItem key={type.name} value={type.name}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          ))}
         </div>
 
         <div>

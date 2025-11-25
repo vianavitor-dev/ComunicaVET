@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, MapPin, Star } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Search, MapPin, Star, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -36,6 +38,13 @@ const Index = () => {
   const [categories, setCategories] = useState<Focus[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+  const [newAddress, setNewAddress] = useState({
+    street: "",
+    city: "",
+    state: "",
+    country: "brazil"
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -75,7 +84,7 @@ const Index = () => {
     }
   };
 
-  const fetchClinics = async () => {
+  const fetchClinics = async (addressDto?: any) => {
     setIsLoading(true);
     try {
       const userId = localStorage.getItem("userId");
@@ -89,7 +98,7 @@ const Index = () => {
         const requestData = {
           userId: userId ? parseInt(userId) : null,
           tagNames: selectedCategories.length > 0 ? selectedCategories : null,
-          newAddressDto: null
+          newAddressDto: addressDto || null
         };
 
         response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/clinics/filter`, requestData);
@@ -118,6 +127,30 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAddressSubmit = () => {
+    if (!newAddress.street || !newAddress.city || !newAddress.state) {
+      toast({
+        title: t("home.error"),
+        description: t("home.fillAllAddressFields"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const addressDto = {
+      amenity: null,
+      street: newAddress.street,
+      city: newAddress.city,
+      state: newAddress.state,
+      county: null,
+      country: newAddress.country,
+      postalCode: null
+    };
+
+    fetchClinics(addressDto);
+    setIsAddressDialogOpen(false);
   };
 
   const toggleCategory = (categoryName: string) => {
@@ -196,9 +229,18 @@ const Index = () => {
               />
             </div>
 
-            <div className="text-center">
-              <Button size="lg" className="px-12" onClick={fetchClinics} disabled={isLoading}>
+            <div className="flex gap-4 justify-center items-center">
+              <Button size="lg" className="px-12" onClick={() => fetchClinics()} disabled={isLoading}>
                 {isLoading ? t("home.searching") : t("home.search")}
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => setIsAddressDialogOpen(true)}
+              >
+                <Plus className="h-5 w-5" />
+                {t("home.addAddress")}
               </Button>
             </div>
           </div>
@@ -257,17 +299,66 @@ const Index = () => {
               ))}
             </div>
           )}
-
-          <div className="text-center mt-8">
-            <Button variant="link" asChild>
-              <Link to="/clinicas">{t("home.seeMore")} →</Link>
-            </Button>
-          </div>
         </div>
       </section>
 
       {/* Footer */}
       <Footer />
+
+      {/* Address Dialog */}
+      <Dialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("home.addNewAddress")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="street">{t("home.street")}</Label>
+              <Input
+                id="street"
+                placeholder={t("home.streetPlaceholder")}
+                value={newAddress.street}
+                onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="city">{t("home.city")}</Label>
+              <Input
+                id="city"
+                placeholder={t("home.cityPlaceholder")}
+                value={newAddress.city}
+                onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="state">{t("home.state")}</Label>
+              <Input
+                id="state"
+                placeholder={t("home.statePlaceholder")}
+                value={newAddress.state}
+                onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="country">{t("home.country")}</Label>
+              <Input
+                id="country"
+                placeholder={t("home.countryPlaceholder")}
+                value={newAddress.country}
+                onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddressDialogOpen(false)}>
+              {t("home.cancel")}
+            </Button>
+            <Button onClick={handleAddressSubmit}>
+              {t("home.searchByAddress")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

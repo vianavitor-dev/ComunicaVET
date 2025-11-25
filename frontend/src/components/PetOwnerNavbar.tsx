@@ -32,6 +32,13 @@ const PetOwnerNavbar = () => {
           <Button 
             variant="ghost" 
             className="text-primary-foreground hover:bg-primary-foreground/10"
+            onClick={() => navigate("/meus-pets")}
+          >
+            {t("nav.myPets")}
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="text-primary-foreground hover:bg-primary-foreground/10"
             onClick={() => navigate("/perfil")}
           >
             {t("nav.account")}
