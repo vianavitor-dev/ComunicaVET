@@ -17,7 +17,7 @@ public class PythonAIService {
     private String pythonHost;
 
     public AiResponseDTO getRecommendationFromAI(RecommendBasedOnPetDTO dto) {
-        String url = pythonHost + "/api/recommend";
+        String url = pythonHost + "/recommendations";
 
         AiResponseDTO response = restTemplate.postForObject(url, dto, AiResponseDTO.class);
         System.out.println(response);

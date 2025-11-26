@@ -7,78 +7,64 @@ import com.projetointegrador.comunicavet.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ImageService {
 
-    @Value("${image.path}")
-    private String baseImageUrlPath;
+    @Value("${aws.s3.bucket}")
+    private String bucketName;
+
+    @Autowired
+    private S3Client s3Client;
 
     @Autowired
     private UserRepository userRepository;
 
-    public String uploadImage
-            (@NotNull boolean isBackgroundImage, @NotNull MultipartFile imageFile, @NotNull Long userId)
-            throws IOException {
+    public String uploadImage(@NotNull boolean isBackgroundImage,
+                              @NotNull MultipartFile imageFile,
+                              @NotNull Long userId) throws IOException {
 
-        String uniqueImageName = userId.toString() + "_" + imageFile.getOriginalFilename();
-        String imageUrlPath = baseImageUrlPath + "/profileImages";
+        String folder = isBackgroundImage ? "backgroundImages" : "profileImages";
+        String uniqueImageName = userId + "_" + imageFile.getOriginalFilename();
+        String key = folder + "/" + uniqueImageName;
 
-        if (isBackgroundImage) {
-            imageUrlPath = baseImageUrlPath + "/backgroundImages";
-        }
+        // remove imagem antiga, se existir
+        deleteUserOldImage(folder, userId);
 
-        Path uploadPath = Path.of(imageUrlPath);
-        Path filePath = uploadPath.resolve(uniqueImageName); // junta os caminhos
+        // envia para S3
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(key)
+                        .contentType(imageFile.getContentType())
+                        .build(),
+                RequestBody.fromBytes(imageFile.getBytes())
+        );
 
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        Optional<File> optionalImage = this.getById(userId, uploadPath.toFile());
-
-        if (optionalImage.isPresent()) {
-            // Deleta a imagem antiga do usuário
-            if (!optionalImage.get().delete()) {
-                throw new IOException("Erro ao excluir arquivo");
-            }
-        }
-
-        Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        // retorna o caminho para salvar a imagem no banco de dados
         return uniqueImageName;
     }
 
-    public ImageAndContentTypeDTO getImageAndContentType
-            (@NotNull Optional<Long> optionalUserId,
-             @NotNull Optional<String> optionalEmail,
-             @NotNull boolean isBackgroundImage
-            ) throws IOException, MalformedURLException, NotFoundResourceException {
+    public ImageAndContentTypeDTO getImageAndContentType(
+            @NotNull Optional<Long> optionalUserId,
+            @NotNull Optional<String> optionalEmail,
+            @NotNull boolean isBackgroundImage
+    ) throws IOException, MalformedURLException, NotFoundResourceException {
 
-        String imageUrlPath = baseImageUrlPath + "/profileImages";
-        if (isBackgroundImage) {
-            imageUrlPath = baseImageUrlPath + "/backgroundImages";
-        }
-
-        Path foulderPath = Path.of(imageUrlPath);
         User user;
 
+        // buscar usuário
         if (optionalEmail.isPresent()) {
             user = userRepository.findByEmail(optionalEmail.get())
                     .orElseThrow(() -> new NotFoundResourceException("Usuário não encontrado"));
@@ -89,37 +75,60 @@ public class ImageService {
             throw new NullPointerException("Nenhum campo foi preenchido");
         }
 
-        File image = this.getById(user.getId(), foulderPath.toFile())
-                .orElseThrow(() -> new IOException("Imagem não encontrada"));
+        String folder = isBackgroundImage ? "backgroundImages" : "profileImages";
 
-        Path filePath = Path.of(image.getPath()).normalize();
-        Resource resource = new UrlResource(filePath.toUri());
+        // encontra imagem no bucket
+        String key = findUserFileInS3(folder, user.getId())
+                .orElseThrow(() -> new NotFoundResourceException("Imagem não encontrada"));
 
-        if (!resource.exists() && !resource.isReadable()) {
-            throw new IOException("Erro ao retornar imagem");
-        }
+        // baixa imagem do S3
+        ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(
+                GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(key)
+                        .build()
+        );
 
-        String contentType = "image/jpeg";
-        if(filePath.endsWith(".png")) {
-            contentType = "image/png";
-        }
+        String contentType = s3Object.response().contentType();
 
-        return new ImageAndContentTypeDTO(resource, contentType);
+        return new ImageAndContentTypeDTO(
+                new InputStreamResource(s3Object),
+                contentType
+        );
     }
 
-    private Optional<File> getById(Long id, File directory) throws IOException {
-        File[] files = directory.listFiles();
+    // ======================= AUXILIARES =============================
 
-        if (files == null) {
-            return Optional.empty();
+    private void deleteUserOldImage(String folder, Long userId) {
+
+        ListObjectsV2Response response = s3Client.listObjectsV2(
+                ListObjectsV2Request.builder()
+                        .bucket(bucketName)
+                        .prefix(folder + "/" + userId + "_")
+                        .build()
+        );
+
+        for (S3Object obj : response.contents()) {
+            s3Client.deleteObject(
+                    DeleteObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(obj.key())
+                            .build()
+            );
         }
+    }
 
-        List<File> existentFile = Arrays.stream(files).filter(file -> {
-            String fileId = file.getName().split("_")[0];
+    private Optional<String> findUserFileInS3(String folder, Long userId) {
 
-            return fileId.equals(id.toString());
-        }).toList();
+        ListObjectsV2Response response = s3Client.listObjectsV2(
+                ListObjectsV2Request.builder()
+                        .bucket(bucketName)
+                        .prefix(folder + "/" + userId + "_")
+                        .build()
+        );
 
-        return existentFile.stream().findFirst();
+        return response.contents().stream()
+                .map(S3Object::key)
+                .findFirst();
     }
 }

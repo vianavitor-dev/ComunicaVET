@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -90,4 +92,15 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ApiResponse<>(true, ex.getMessage(), null));
     }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ApiResponse<?>> handleIOException(
+            IOException ex
+    ) {
+        return new ResponseEntity<>(
+                new ApiResponse<>(true, ex.getMessage(), null),
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
 }

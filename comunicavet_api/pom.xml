@@ -48,6 +48,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>aws-sdk-java</artifactId>
+			<version>2.39.3</version>
+		</dependency>
+
+		<dependency>
 			<groupId>at.favre.lib</groupId>
 			<artifactId>bcrypt</artifactId>
 			<version>0.10.2</version>
