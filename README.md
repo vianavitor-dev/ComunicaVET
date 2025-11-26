@@ -25,7 +25,6 @@ Aplicação para localizar clínicas veterinárias próximas ao usuário. Permit
 
 <div class="tech-grid">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" height="100px" alt="Java" title="Java" style="margin-right:10px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redis/redis-original.svg" height="100px" alt="Redis" title="Redis" style="margin-right:10px;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg" height="100px" alt="Mysql" title="Mysql" style="margin-right:10px;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" height="100px" alt="React" title="React" style="margin-right:10px;" />&nbsp;&nbsp;&nbsp;&nbsp;
 </div>
